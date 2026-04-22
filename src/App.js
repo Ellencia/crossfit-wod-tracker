@@ -19,11 +19,6 @@ const VALID_MUSCLE_IDS = new Set([
   'head', 'tibialis',
 ]);
 
-const INTENSITY_FREQUENCY = {
-  high: 1,
-  medium: 2,
-  low: 3,
-};
 
 function App() {
   const [wod, setWod] = useState('');
