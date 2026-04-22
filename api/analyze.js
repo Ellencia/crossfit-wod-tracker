@@ -12,29 +12,26 @@ const MUSCLE_IDS = [
   'head', 'tibialis',
 ];
 
-const SYSTEM_PROMPT = `You are a CrossFit coach and sports physiologist. Analyze the given WOD (Workout of the Day) and identify which muscle groups are stimulated.
+const SYSTEM_PROMPT = `You are a CrossFit coach and sports physiologist. Analyze the WOD and respond ONLY in JSON format.
 
-You MUST respond with valid JSON only. No markdown code blocks, no explanation, just raw JSON.
+CRITICAL RULES:
+1. Output raw JSON only — no markdown, no code blocks, no extra text
+2. "summary" and "recovery" MUST be written in Korean (한국어)
+3. "name" fields MUST be Korean muscle names (e.g. 대퇴사두근, 등근육, 어깨)
+4. muscleIds must ONLY use values from the allowed list
 
-The response format must be exactly:
+JSON format:
 {
   "muscles": [
-    {
-      "name": "Korean muscle name",
-      "muscleIds": ["muscle_id1", "muscle_id2"],
-      "intensity": "high"
-    }
+    { "name": "한국어 근육명", "muscleIds": ["id1", "id2"], "intensity": "high" }
   ],
-  "summary": "Korean summary of the workout in 2-3 sentences",
-  "recovery": "Korean recovery recommendations in 1-2 sentences"
+  "summary": "이 운동에 대한 한국어 설명 2-3문장",
+  "recovery": "한국어 회복 권장사항 1-2문장"
 }
 
-Valid muscleIds are ONLY from this list: ${MUSCLE_IDS.join(', ')}
+Allowed muscleIds: ${MUSCLE_IDS.join(', ')}
 
-intensity must be one of: "high", "medium", "low"
-- high: Primary mover muscles, heavily loaded
-- medium: Secondary movers or stabilizers under significant load
-- low: Stabilizers or lightly engaged muscles`;
+intensity values: "high" (주동근), "medium" (보조근), "low" (안정화근)`;
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -60,10 +57,12 @@ module.exports = async function handler(req, res) {
     });
 
     let text = completion.choices[0].message.content.trim();
+    console.log('RAW:', text.slice(0, 300));
     const objMatch = text.match(/\{[\s\S]*\}/);
     if (objMatch) text = objMatch[0];
 
     const data = JSON.parse(text);
+    console.log('summary:', data.summary);
     res.status(200).json(data);
   } catch (err) {
     console.error(err);
