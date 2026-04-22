@@ -42,6 +42,142 @@ body {
   margin-bottom: 24px;
 }
 
+/* 모드 토글 */
+.mode-toggle {
+  display: flex;
+  gap: 0;
+  margin-bottom: 20px;
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.mode-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: #666;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.mode-btn.active {
+  background: #ef4444;
+  color: white;
+}
+
+/* DB 모드 */
+.db-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.search-input {
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 8px;
+  color: #e5e5e5;
+  font-size: 0.9rem;
+  padding: 10px 14px;
+  outline: none;
+  font-family: inherit;
+}
+
+.search-input:focus { border-color: #ef4444; }
+.search-input::placeholder { color: #444; }
+
+.category-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.cat-btn {
+  background: #2a2a2a;
+  border: 1px solid #333;
+  border-radius: 20px;
+  color: #888;
+  font-size: 0.78rem;
+  padding: 4px 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.cat-btn.active, .cat-btn:hover {
+  background: #333;
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.exercise-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 6px;
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 12px;
+  padding-right: 4px;
+}
+
+.exercise-btn {
+  background: #1f1f1f;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  color: #ccc;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 8px 12px;
+  text-align: left;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.exercise-btn:hover { border-color: #444; background: #252525; }
+
+.exercise-btn.selected {
+  background: #2d1111;
+  border-color: #ef4444;
+  color: #fff;
+}
+
+.ex-name { font-size: 0.82rem; font-weight: 600; }
+.ex-name-ko { font-size: 0.75rem; color: #888; }
+.exercise-btn.selected .ex-name-ko { color: #f87171; }
+
+.selected-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.selected-label { color: #666; font-size: 0.85rem; }
+
+.selected-tag {
+  background: #2d1111;
+  border: 1px solid #ef4444;
+  border-radius: 6px;
+  color: #f87171;
+  cursor: pointer;
+  font-size: 0.82rem;
+  padding: 3px 10px;
+  transition: opacity 0.15s;
+}
+
+.selected-tag:hover { opacity: 0.7; }
+
 .sample-buttons {
   display: flex;
   align-items: center;

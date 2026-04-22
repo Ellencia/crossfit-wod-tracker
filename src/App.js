@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Model from 'react-body-highlighter';
+import { EXERCISES, CATEGORIES, combineExercises } from './exerciseDB';
 import './App.css';
 
 const SAMPLE_WODS = [
@@ -19,26 +20,33 @@ const VALID_MUSCLE_IDS = new Set([
   'head', 'tibialis',
 ]);
 
-
 function App() {
+  const [mode, setMode] = useState('db');
+
+  // AI 모드 상태
   const [wod, setWod] = useState('');
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null);
   const [error, setError] = useState('');
 
-  const analyzeWOD = async () => {
+  // DB 모드 상태
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('전체');
+  const [selectedIds, setSelectedIds] = useState([]);
+
+  const [result, setResult] = useState(null);
+
+  // ── AI 분석 ──────────────────────────────────────────────
+  const analyzeAI = async () => {
     if (!wod.trim()) return;
     setLoading(true);
     setError('');
     setResult(null);
-
     try {
       const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ wod }),
       });
-
       if (!response.ok) throw new Error('분석 실패');
       const data = await response.json();
       setResult(data);
@@ -49,9 +57,36 @@ function App() {
     }
   };
 
+  // ── DB 분석 ──────────────────────────────────────────────
+  const analyzeDB = () => {
+    if (!selectedIds.length) return;
+    const selected = EXERCISES.filter(e => selectedIds.includes(e.id));
+    const muscles = combineExercises(selected);
+    const names = selected.map(e => e.nameKo).join(', ');
+    setResult({
+      muscles,
+      summary: `선택한 운동: ${names}. 총 ${selected.length}가지 동작으로 구성된 운동입니다.`,
+      recovery: '운동 후 충분한 스트레칭과 수분 섭취를 권장합니다. 고강도 부위는 48~72시간 휴식을 권장합니다.',
+    });
+  };
+
+  const toggleExercise = (id) => {
+    setSelectedIds(prev =>
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    );
+    setResult(null);
+  };
+
+  const filteredExercises = EXERCISES.filter(e => {
+    const matchCat = selectedCategory === '전체' || e.category === selectedCategory;
+    const q = searchQuery.toLowerCase();
+    const matchQ = !q || e.name.toLowerCase().includes(q) || e.nameKo.includes(q);
+    return matchCat && matchQ;
+  });
+
+  // ── 시각화 데이터 ─────────────────────────────────────────
   const getHighlightData = () => {
     if (!result) return [];
-    console.log('muscles:', JSON.stringify(result.muscles));
     const groups = { high: [], medium: [], low: [] };
     result.muscles.forEach(m => {
       const key = (m.intensity || '').toLowerCase();
@@ -74,28 +109,107 @@ function App() {
 
       <main className="app-main">
         <section className="input-section">
-          <div className="sample-buttons">
-            <span className="sample-label">샘플 WOD:</span>
-            {SAMPLE_WODS.map((s, i) => (
-              <button key={i} className="sample-btn" onClick={() => setWod(s)}>
-                {s.split(':')[0]}
-              </button>
-            ))}
+          {/* 모드 토글 */}
+          <div className="mode-toggle">
+            <button
+              className={`mode-btn ${mode === 'db' ? 'active' : ''}`}
+              onClick={() => { setMode('db'); setResult(null); setError(''); }}
+            >
+              DB 모드
+            </button>
+            <button
+              className={`mode-btn ${mode === 'ai' ? 'active' : ''}`}
+              onClick={() => { setMode('ai'); setResult(null); setError(''); }}
+            >
+              AI 모드
+            </button>
           </div>
-          <textarea
-            className="wod-input"
-            value={wod}
-            onChange={e => setWod(e.target.value)}
-            placeholder={"오늘의 WOD를 입력하세요\n예) Fran: 21-15-9 Thrusters (43kg), Pull-ups\n예) AMRAP 20min - 5 Pull-ups, 10 Push-ups, 15 Air Squats"}
-            rows={4}
-          />
-          <button
-            className="analyze-btn"
-            onClick={analyzeWOD}
-            disabled={loading || !wod.trim()}
-          >
-            {loading ? '분석 중...' : '근육 분석하기'}
-          </button>
+
+          {/* DB 모드 */}
+          {mode === 'db' && (
+            <div className="db-mode">
+              <div className="db-controls">
+                <input
+                  className="search-input"
+                  type="text"
+                  placeholder="운동 검색 (예: clean, 스쿼트)"
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                />
+                <div className="category-tabs">
+                  {CATEGORIES.map(cat => (
+                    <button
+                      key={cat}
+                      className={`cat-btn ${selectedCategory === cat ? 'active' : ''}`}
+                      onClick={() => setSelectedCategory(cat)}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="exercise-grid">
+                {filteredExercises.map(ex => (
+                  <button
+                    key={ex.id}
+                    className={`exercise-btn ${selectedIds.includes(ex.id) ? 'selected' : ''}`}
+                    onClick={() => toggleExercise(ex.id)}
+                  >
+                    <span className="ex-name">{ex.name}</span>
+                    <span className="ex-name-ko">{ex.nameKo}</span>
+                  </button>
+                ))}
+              </div>
+
+              {selectedIds.length > 0 && (
+                <div className="selected-list">
+                  <span className="selected-label">선택됨:</span>
+                  {EXERCISES.filter(e => selectedIds.includes(e.id)).map(e => (
+                    <span key={e.id} className="selected-tag" onClick={() => toggleExercise(e.id)}>
+                      {e.nameKo} ✕
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              <button
+                className="analyze-btn"
+                onClick={analyzeDB}
+                disabled={!selectedIds.length}
+              >
+                근육 분석하기
+              </button>
+            </div>
+          )}
+
+          {/* AI 모드 */}
+          {mode === 'ai' && (
+            <div className="ai-mode">
+              <div className="sample-buttons">
+                <span className="sample-label">샘플:</span>
+                {SAMPLE_WODS.map((s, i) => (
+                  <button key={i} className="sample-btn" onClick={() => setWod(s)}>
+                    {s.split(':')[0]}
+                  </button>
+                ))}
+              </div>
+              <textarea
+                className="wod-input"
+                value={wod}
+                onChange={e => setWod(e.target.value)}
+                placeholder={"오늘의 WOD를 입력하세요\n예) Fran: 21-15-9 Thrusters (43kg), Pull-ups"}
+                rows={4}
+              />
+              <button
+                className="analyze-btn"
+                onClick={analyzeAI}
+                disabled={loading || !wod.trim()}
+              >
+                {loading ? '분석 중...' : '근육 분석하기'}
+              </button>
+            </div>
+          )}
         </section>
 
         {error && <div className="error-box">{error}</div>}
