@@ -48,7 +48,7 @@ module.exports = async function handler(req, res) {
 
   try {
     const completion = await client.chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
+      model: 'deepseek-r1-distill-llama-70b',
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: `WOD: ${wod}` },
