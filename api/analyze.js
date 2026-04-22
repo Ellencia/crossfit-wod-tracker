@@ -54,11 +54,11 @@ module.exports = async function handler(req, res) {
         { role: 'user', content: `WOD: ${wod}` },
       ],
       temperature: 0.3,
-      max_tokens: 1024,
-      response_format: { type: 'json_object' },
+      max_tokens: 4096,
     });
 
     let text = completion.choices[0].message.content.trim();
+    text = text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
     console.log('RAW:', text.slice(0, 300));
     const objMatch = text.match(/\{[\s\S]*\}/);
     if (objMatch) text = objMatch[0];
