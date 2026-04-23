@@ -354,20 +354,22 @@ function App() {
                       ))}
                     </div>
                   </div>
-                  {advice.map(({ id, muscle, info }) => (
-                    <div key={id} className="recovery-item">
-                      <div className="recovery-muscle">
-                        <span className={`recovery-badge ${muscle?.intensity}`}>{muscle?.intensity === 'high' ? '고강도' : '중강도'}</span>
-                        <span className="recovery-muscle-name">{info.name}</span>
+                  <div className="recovery-grid">
+                    {advice.map(({ id, muscle, info }) => (
+                      <div key={id} className="recovery-item">
+                        <div className="recovery-muscle">
+                          <span className={`recovery-badge ${muscle?.intensity}`}>{muscle?.intensity === 'high' ? '고강도' : '중강도'}</span>
+                          <span className="recovery-muscle-name">{info.name}</span>
+                        </div>
+                        <div className="recovery-method">
+                          <span className="method-icon">
+                            {TABS.find(t => t.key === recoveryTab)?.icon}
+                          </span>
+                          <span>{info[recoveryTab]}</span>
+                        </div>
                       </div>
-                      <div className="recovery-method">
-                        <span className="method-icon">
-                          {TABS.find(t => t.key === recoveryTab)?.icon}
-                        </span>
-                        <span>{info[recoveryTab]}</span>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               );
             })()}
