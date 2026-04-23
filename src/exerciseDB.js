@@ -107,7 +107,7 @@ export const EXERCISES = [
     muscles: { 'front-deltoids':'high', triceps:'high', quadriceps:'medium', gluteal:'medium', trapezius:'medium', abs:'low' },
   },
   {
-    id: 'strict_press', name: 'Strict Press', nameKo: '스트릭 프레스', category: '바벨',
+    id: 'strict_press', name: 'Strict Press / Shoulder Press', nameKo: '숄더 프레스', category: '바벨',
     muscles: { 'front-deltoids':'high', triceps:'high', trapezius:'medium', abs:'medium', 'upper-back':'low' },
   },
   {
