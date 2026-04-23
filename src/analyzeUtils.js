@@ -1,7 +1,6 @@
 import { EXERCISES } from './exerciseDB';
 import { MUSCLE_KO } from './muscleTooltip';
 
-const sanitizeName = s => (s || '').replace(/\*\*/g, '').replace(/[^가-힣\w\s\-()·]/g, '').trim();
 
 export const VALID_MUSCLE_IDS = new Set([
   'trapezius', 'upper-back', 'lower-back',
