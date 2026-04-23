@@ -5,13 +5,18 @@ const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
 const MODE_LABEL = { db: 'DB', ai: 'Groq AI', local: '로컬 AI' };
 const INTENSITY_LABEL = { high: '고강도', medium: '중강도', low: '저강도' };
 
-function renderBold(text) {
+const INTENSITY_COLOR = { high: '#ef4444', medium: '#f97316', low: '#22c55e' };
+
+function renderBold(text, muscles) {
   if (!text) return null;
-  return text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
-    part.startsWith('**') && part.endsWith('**')
-      ? <strong key={i}>{part.slice(2, -2)}</strong>
-      : part
-  );
+  const intensityMap = {};
+  (muscles || []).forEach(m => { if (m.name) intensityMap[m.name] = m.intensity; });
+  return text.split(/(\*\*[^*]+\*\*)/g).map((part, i) => {
+    if (!part.startsWith('**') || !part.endsWith('**')) return part;
+    const inner = part.slice(2, -2);
+    const color = INTENSITY_COLOR[intensityMap[inner]];
+    return <strong key={i} style={color ? { color } : undefined}>{inner}</strong>;
+  });
 }
 
 function toDateKey(date) {
@@ -173,7 +178,7 @@ export default function Calendar({ records, onDelete }) {
           {record.summary && (
             <div className="cal-summary">
               <div className="cal-section-label">총평</div>
-              <p>{renderBold(record.summary)}</p>
+              <p>{renderBold(record.summary, record.muscles)}</p>
             </div>
           )}
         </div>

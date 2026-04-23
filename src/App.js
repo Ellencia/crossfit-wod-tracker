@@ -161,15 +161,18 @@ function App() {
     return matchCat && matchQ;
   });
 
-  // **text** → <strong> 렌더링
-  const renderBold = (text) => {
+  // **text** → <strong> 렌더링, 근육명은 강도 색으로
+  const INTENSITY_COLOR = { high: '#ef4444', medium: '#f97316', low: '#22c55e' };
+  const renderBold = (text, muscles) => {
     if (!text) return null;
-    const parts = text.split(/(\*\*[^*]+\*\*)/g);
-    return parts.map((part, i) =>
-      part.startsWith('**') && part.endsWith('**')
-        ? <strong key={i}>{part.slice(2, -2)}</strong>
-        : part
-    );
+    const intensityMap = {};
+    (muscles || []).forEach(m => { if (m.name) intensityMap[m.name] = m.intensity; });
+    return text.split(/(\*\*[^*]+\*\*)/g).map((part, i) => {
+      if (!part.startsWith('**') || !part.endsWith('**')) return part;
+      const inner = part.slice(2, -2);
+      const color = INTENSITY_COLOR[intensityMap[inner]];
+      return <strong key={i} style={color ? { color } : undefined}>{inner}</strong>;
+    });
   };
 
   // ── WOD 저장 ─────────────────────────────────────────────
@@ -500,7 +503,7 @@ function App() {
             {result.summary && (
               <div className="summary-box">
                 <h3>총평</h3>
-                <p>{renderBold(result.summary)}</p>
+                <p>{renderBold(result.summary, result.muscles)}</p>
               </div>
             )}
 
