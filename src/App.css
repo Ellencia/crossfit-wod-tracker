@@ -156,22 +156,60 @@ body {
   white-space: nowrap;
 }
 
-.weight-input {
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid #333;
-  color: #e5e5e5;
-  font-family: inherit;
-  font-size: 0.9rem;
-  font-weight: 700;
-  outline: none;
-  text-align: right;
-  width: 52px;
+.spinner-group {
+  display: flex;
+  align-items: center;
 }
 
-.weight-input:focus { border-bottom-color: #ef4444; }
-.weight-input::placeholder { color: #333; }
-.weight-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.spinner-btn {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  color: #666;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.12s;
+  user-select: none;
+}
+
+.spinner-btn:first-child { border-radius: 6px 0 0 6px; }
+.spinner-btn:last-child  { border-radius: 0 6px 6px 0; }
+
+.spinner-btn:hover {
+  background: #2a2a2a;
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.spinner-btn:active { background: #2d1111; }
+
+.weight-input {
+  background: #111;
+  border: 1px solid #333;
+  border-left: none;
+  border-right: none;
+  color: #e5e5e5;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  outline: none;
+  padding: 3px 0;
+  text-align: center;
+  width: 48px;
+  height: 26px;
+}
+
+.weight-input:focus { border-color: #333; background: #161616; }
+.weight-input::placeholder { color: #333; font-weight: 400; }
+.weight-input::-webkit-inner-spin-button,
+.weight-input::-webkit-outer-spin-button { -webkit-appearance: none; }
 
 .weight-unit {
   color: #555;
@@ -204,20 +242,23 @@ body {
 .time-input {
   background: #111;
   border: 1px solid #333;
-  border-radius: 8px;
+  border-left: none;
+  border-right: none;
   color: #e5e5e5;
   font-family: inherit;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 700;
   outline: none;
-  padding: 8px 0;
+  padding: 3px 0;
   text-align: center;
-  width: 60px;
+  width: 48px;
+  height: 26px;
 }
 
-.time-input:focus { border-color: #ef4444; }
+.time-input:focus { background: #161616; }
 .time-input::placeholder { color: #333; font-weight: 400; font-size: 0.78rem; }
-.time-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.time-input::-webkit-inner-spin-button,
+.time-input::-webkit-outer-spin-button { -webkit-appearance: none; }
 
 .time-sep {
   color: #555;

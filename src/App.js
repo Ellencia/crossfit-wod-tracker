@@ -527,20 +527,28 @@ function App() {
               <div className="save-row save-weights">
                 <span className="save-field-label">중량</span>
                 <div className="weight-grid">
-                  {EXERCISES.filter(e => selectedIds.includes(e.id)).map(ex => (
-                    <div key={ex.id} className="weight-item">
-                      <span className="weight-name">{ex.nameKo}</span>
-                      <input
-                        type="number"
-                        className="weight-input"
-                        placeholder="—"
-                        min="0"
-                        value={weights[ex.id] || ''}
-                        onChange={e => setWeights(prev => ({ ...prev, [ex.id]: e.target.value }))}
-                      />
-                      <span className="weight-unit">kg</span>
-                    </div>
-                  ))}
+                  {EXERCISES.filter(e => selectedIds.includes(e.id)).map(ex => {
+                    const val = Number(weights[ex.id] || 0);
+                    const set = (v) => setWeights(prev => ({ ...prev, [ex.id]: String(Math.max(0, v)) }));
+                    return (
+                      <div key={ex.id} className="weight-item">
+                        <span className="weight-name">{ex.nameKo}</span>
+                        <div className="spinner-group">
+                          <button className="spinner-btn" onClick={() => set(val - 2.5)}>−</button>
+                          <input
+                            type="number"
+                            className="weight-input"
+                            placeholder="0"
+                            min="0"
+                            value={weights[ex.id] || ''}
+                            onChange={e => setWeights(prev => ({ ...prev, [ex.id]: e.target.value }))}
+                          />
+                          <button className="spinner-btn" onClick={() => set(val + 2.5)}>+</button>
+                        </div>
+                        <span className="weight-unit">kg</span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -563,23 +571,31 @@ function App() {
             <div className="save-row">
               <span className="save-field-label">완료 시간</span>
               <div className="time-inputs">
-                <input
-                  type="number"
-                  className="time-input"
-                  placeholder="분"
-                  min="0" max="99"
-                  value={compMin}
-                  onChange={e => setCompMin(e.target.value)}
-                />
+                <div className="spinner-group">
+                  <button className="spinner-btn" onClick={() => setCompMin(v => String(Math.max(0, Number(v||0) - 1)))}>−</button>
+                  <input
+                    type="number"
+                    className="time-input"
+                    placeholder="분"
+                    min="0" max="99"
+                    value={compMin}
+                    onChange={e => setCompMin(e.target.value)}
+                  />
+                  <button className="spinner-btn" onClick={() => setCompMin(v => String(Number(v||0) + 1))}>+</button>
+                </div>
                 <span className="time-sep">:</span>
-                <input
-                  type="number"
-                  className="time-input"
-                  placeholder="초"
-                  min="0" max="59"
-                  value={compSec}
-                  onChange={e => setCompSec(e.target.value)}
-                />
+                <div className="spinner-group">
+                  <button className="spinner-btn" onClick={() => setCompSec(v => String(Math.min(59, Math.max(0, Number(v||0) - 1))))}>−</button>
+                  <input
+                    type="number"
+                    className="time-input"
+                    placeholder="초"
+                    min="0" max="59"
+                    value={compSec}
+                    onChange={e => setCompSec(e.target.value)}
+                  />
+                  <button className="spinner-btn" onClick={() => setCompSec(v => String(Math.min(59, Number(v||0) + 1)))}>+</button>
+                </div>
               </div>
             </div>
 
