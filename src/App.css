@@ -22,6 +22,12 @@ body {
   margin-bottom: 32px;
 }
 
+.app-logo {
+  height: 80px;
+  width: auto;
+  margin-bottom: 8px;
+}
+
 .app-header h1 {
   font-size: 2rem;
   font-weight: 800;
