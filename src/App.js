@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Model from 'react-body-highlighter';
 import { EXERCISES, CATEGORIES, combineExercises } from './exerciseDB';
+import { getRecoveryAdvice } from './recoveryDB';
 import './App.css';
 
 const SAMPLE_WODS = [
@@ -269,12 +270,37 @@ function App() {
               </div>
             )}
 
-            {result.recovery && (
-              <div className="recovery-box">
-                <h3>회복 권장사항</h3>
-                <p>{result.recovery}</p>
-              </div>
-            )}
+            {result.muscles?.length > 0 && (() => {
+              const advice = getRecoveryAdvice(result.muscles);
+              if (!advice.length) return null;
+              return (
+                <div className="recovery-box">
+                  <h3>회복 권장사항</h3>
+                  {advice.map(({ id, muscle, info }) => (
+                    <div key={id} className="recovery-item">
+                      <div className="recovery-muscle">
+                        <span className={`recovery-badge ${muscle?.intensity}`}>{muscle?.intensity === 'high' ? '고강도' : '중강도'}</span>
+                        <span className="recovery-muscle-name">{info.name}</span>
+                      </div>
+                      <div className="recovery-methods">
+                        <div className="recovery-method">
+                          <span className="method-icon">🤸</span>
+                          <span>{info.stretch}</span>
+                        </div>
+                        <div className="recovery-method">
+                          <span className="method-icon">🪵</span>
+                          <span>{info.foamRoller}</span>
+                        </div>
+                        <div className="recovery-method">
+                          <span className="method-icon">🔫</span>
+                          <span>{info.massageGun}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
           </section>
         )}
       </main>

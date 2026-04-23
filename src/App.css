@@ -359,29 +359,86 @@ body {
   padding: 4px 12px;
 }
 
-.summary-box, .recovery-box {
+.summary-box {
   background: #1a1a1a;
   border: 1px solid #2a2a2a;
   border-radius: 12px;
   padding: 20px;
 }
 
-.summary-box h3, .recovery-box h3 {
+.summary-box h3 {
   color: #ccc;
   font-size: 1rem;
   margin-bottom: 10px;
 }
 
-.recovery-box {
-  border-color: #1a3a2a;
-  background: #111a15;
-}
-
-.recovery-box h3 { color: #4ade80; }
-
-.summary-box p, .recovery-box p {
+.summary-box p {
   color: #aaa;
   line-height: 1.7;
+}
+
+.recovery-box {
+  background: #111a15;
+  border: 1px solid #1a3a2a;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.recovery-box h3 {
+  color: #4ade80;
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.recovery-item {
+  border-top: 1px solid #1a3a2a;
+  padding-top: 14px;
+}
+
+.recovery-muscle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.recovery-muscle-name {
+  font-weight: 700;
+  color: #e5e5e5;
+  font-size: 0.95rem;
+}
+
+.recovery-badge {
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+}
+
+.recovery-badge.high { background: #2d1111; color: #ef4444; }
+.recovery-badge.medium { background: #2d1a0a; color: #f97316; }
+
+.recovery-methods {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.recovery-method {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  color: #aaa;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.method-icon {
+  flex-shrink: 0;
+  width: 20px;
 }
 
 @media (max-width: 600px) {
