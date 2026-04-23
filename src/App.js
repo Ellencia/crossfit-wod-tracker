@@ -289,6 +289,12 @@ function App() {
           {/* 로컬 AI 모드 */}
           {mode === 'local' && (
             <div className="ai-mode">
+              {window.location.protocol === 'https:' && (
+                <div className="local-https-warning">
+                  ⚠️ HTTPS 환경에서는 브라우저 보안 정책으로 로컬 AI 접근이 차단됩니다.
+                  로컬에서 앱을 직접 실행한 뒤 <strong>http://localhost:3000</strong>으로 접속하여 사용하세요.
+                </div>
+              )}
               <div className="local-url-row">
                 <span className="sample-label">서버 주소:</span>
                 <input

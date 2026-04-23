@@ -212,6 +212,21 @@ body {
 
 .selected-tag:hover { opacity: 0.7; }
 
+.local-https-warning {
+  background: #1a1500;
+  border: 1px solid #713f12;
+  border-radius: 8px;
+  color: #fbbf24;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  margin-bottom: 12px;
+  padding: 12px 14px;
+}
+
+.local-https-warning strong {
+  color: #fde68a;
+}
+
 .local-url-row {
   display: flex;
   align-items: center;
