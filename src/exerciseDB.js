@@ -119,6 +119,10 @@ export const EXERCISES = [
     muscles: { 'upper-back':'high', 'lower-back':'high', biceps:'high', 'back-deltoids':'medium', forearm:'medium' },
   },
   {
+    id: 'pendlay_row', name: 'Pendlay Row', nameKo: '펜들레이 로우', category: '바벨',
+    muscles: { 'upper-back':'high', 'lower-back':'high', biceps:'high', 'back-deltoids':'medium', forearm:'medium', trapezius:'medium' },
+  },
+  {
     id: 'good_morning', name: 'Good Morning', nameKo: '굿모닝', category: '바벨',
     muscles: { hamstring:'high', 'lower-back':'high', gluteal:'medium', abs:'medium' },
   },
@@ -205,6 +209,10 @@ export const EXERCISES = [
   {
     id: 'box_step_up', name: 'Box Step-up', nameKo: '박스 스텝업', category: '맨몸',
     muscles: { quadriceps:'high', gluteal:'high', hamstring:'medium' },
+  },
+  {
+    id: 'box_jump_over', name: 'Box Jump Over', nameKo: '박스 점프 오버', category: '맨몸',
+    muscles: { quadriceps:'high', gluteal:'high', hamstring:'medium', calves:'high', abs:'medium' },
   },
   {
     id: 'burpee', name: 'Burpee', nameKo: '버피', category: '맨몸',
