@@ -121,27 +121,34 @@ export default function Calendar({ records, onDelete }) {
           </div>
 
           {/* 중량 */}
-          {record.weights && (
-            Object.keys(record.weights).length > 0 && (() => {
-              const isText = '__text' in record.weights;
-              return (
-                <div className="cal-perf">
-                  <div className="cal-section-label">중량</div>
-                  {isText
-                    ? <p className="cal-perf-text">{record.weights.__text}</p>
-                    : (
-                      <div className="cal-weight-grid">
-                        {Object.entries(record.weights).map(([id, kg]) => (
-                          <span key={id} className="cal-weight-tag">
-                            {record.exerciseNames?.[id] || id} <strong>{kg}kg</strong>
-                          </span>
-                        ))}
+          {record.weights && Object.keys(record.weights).length > 0 && (
+            <div className="cal-perf">
+              <div className="cal-section-label">중량</div>
+              {'__text' in record.weights
+                ? <p className="cal-perf-text">{record.weights.__text}</p>
+                : (
+                  <div className="cal-set-list">
+                    {Object.entries(record.weights).map(([id, sets]) => (
+                      <div key={id} className="cal-set-exercise">
+                        <span className="cal-set-exname">
+                          {record.exerciseNames?.[id] || id}
+                        </span>
+                        <div className="cal-set-tags">
+                          {(sets || []).map((s, i) => (
+                            <span key={i} className="cal-set-tag">
+                              {i + 1}세트&nbsp;
+                              {s.reps && <strong>{s.reps}회</strong>}
+                              {s.reps && s.weight && ' × '}
+                              {s.weight && <strong>{s.weight}kg</strong>}
+                            </span>
+                          ))}
+                        </div>
                       </div>
-                    )
-                  }
-                </div>
-              );
-            })()
+                    ))}
+                  </div>
+                )
+              }
+            </div>
           )}
 
           {/* 완료 시간 */}

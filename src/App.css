@@ -130,31 +130,113 @@ body {
 .save-date-input:focus { border-color: #ef4444; }
 .save-date-input::-webkit-calendar-picker-indicator { filter: invert(0.5); cursor: pointer; }
 
-/* 중량 그리드 */
-.save-weights { align-items: flex-start; }
-
-.weight-grid {
+/* 세트 테이블 */
+.save-set-tables {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  flex: 1;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.weight-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+.set-table {
   background: #111;
   border: 1px solid #2a2a2a;
-  border-radius: 8px;
-  padding: 6px 10px;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
-.weight-name {
-  color: #aaa;
-  font-size: 0.82rem;
-  white-space: nowrap;
+.set-table-header {
+  background: #1a1a1a;
+  border-bottom: 1px solid #2a2a2a;
+  color: #ccc;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 8px 14px;
 }
+
+.set-table-rows {
+  padding: 8px 10px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.set-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.set-row-head .set-col-label {
+  color: #444;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  width: 102px;
+  text-align: center;
+}
+
+.set-num-col {
+  color: #555;
+  font-size: 0.78rem;
+  font-weight: 700;
+  min-width: 20px;
+  text-align: right;
+}
+
+.set-input {
+  background: #0d0d0d;
+  border: 1px solid #2a2a2a;
+  border-left: none;
+  border-right: none;
+  color: #e5e5e5;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  height: 26px;
+  outline: none;
+  padding: 3px 0;
+  text-align: center;
+  width: 40px;
+}
+
+.set-input-wide { width: 52px; }
+.set-input:focus { background: #161616; }
+.set-input::placeholder { color: #2a2a2a; font-weight: 400; }
+
+.set-unit {
+  color: #555;
+  font-size: 0.78rem;
+}
+
+.set-remove-btn {
+  background: transparent;
+  border: none;
+  color: #333;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 2px 4px;
+  transition: color 0.12s;
+}
+
+.set-remove-btn:hover { color: #ef4444; }
+
+.set-add-btn {
+  background: transparent;
+  border: none;
+  border-top: 1px solid #1a1a1a;
+  color: #444;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.8rem;
+  padding: 8px 14px;
+  text-align: left;
+  transition: color 0.12s, background 0.12s;
+  width: 100%;
+}
+
+.set-add-btn:hover { background: #161616; color: #ef4444; }
 
 .spinner-group {
   display: flex;

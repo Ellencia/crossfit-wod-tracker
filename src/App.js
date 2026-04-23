@@ -52,10 +52,32 @@ function App() {
   const [saveDate, setSaveDate] = useState(toDateKey());
 
   // 퍼포먼스 기록
-  const [weights, setWeights] = useState({});   // { exerciseId: "60" }
+  // DB 모드: { [exId]: [{reps:'5', weight:'60'}, ...] }
+  // AI 모드: { __text: '...' }
+  const [weights, setWeights] = useState({});
   const [compMin, setCompMin] = useState('');
   const [compSec, setCompSec] = useState('');
   const [perfNote, setPerfNote] = useState('');
+
+  const addSet = (exId) =>
+    setWeights(prev => ({ ...prev, [exId]: [...(prev[exId] || []), { reps: '', weight: '' }] }));
+
+  const removeSet = (exId, idx) =>
+    setWeights(prev => ({ ...prev, [exId]: prev[exId].filter((_, i) => i !== idx) }));
+
+  const updateSet = (exId, idx, field, value) =>
+    setWeights(prev => {
+      const sets = [...(prev[exId] || [])];
+      sets[idx] = { ...sets[idx], [field]: value };
+      return { ...prev, [exId]: sets };
+    });
+
+  const stepSet = (exId, idx, field, delta) => {
+    const sets = weights[exId] || [];
+    const cur = parseFloat(sets[idx]?.[field] || '0');
+    const next = Math.max(0, cur + delta);
+    updateSet(exId, idx, field, String(next));
+  };
 
   // ── AI 분석 ──────────────────────────────────────────────
   const analyzeAI = async () => {
@@ -150,9 +172,17 @@ function App() {
     const exerciseNames = mode === 'db'
       ? Object.fromEntries(EXERCISES.filter(e => selectedIds.includes(e.id)).map(e => [e.id, e.nameKo]))
       : {};
+    // 빈 세트 행 제거
+    const cleanWeights = mode === 'db'
+      ? Object.fromEntries(
+          Object.entries(weights).map(([id, sets]) => [
+            id, (sets || []).filter(s => s.reps || s.weight)
+          ]).filter(([, sets]) => sets.length > 0)
+        )
+      : weights;
     saveRecord(saveDate, {
       wodText, muscles: result.muscles, summary: result.summary, mode,
-      weights, exerciseNames, completionTime, note: perfNote,
+      weights: cleanWeights, exerciseNames, completionTime, note: perfNote,
     });
     setSavedKey(saveDate);
   };
@@ -522,34 +552,61 @@ function App() {
               />
             </div>
 
-            {/* 운동별 중량 (DB 모드) */}
+            {/* 운동별 세트 테이블 (DB 모드) */}
             {mode === 'db' && selectedIds.length > 0 && (
-              <div className="save-row save-weights">
-                <span className="save-field-label">중량</span>
-                <div className="weight-grid">
-                  {EXERCISES.filter(e => selectedIds.includes(e.id)).map(ex => {
-                    const val = Number(weights[ex.id] || 0);
-                    const set = (v) => setWeights(prev => ({ ...prev, [ex.id]: String(Math.max(0, v)) }));
-                    return (
-                      <div key={ex.id} className="weight-item">
-                        <span className="weight-name">{ex.nameKo}</span>
-                        <div className="spinner-group">
-                          <button className="spinner-btn" onClick={() => set(val - 2.5)}>−</button>
-                          <input
-                            type="text"
-                            inputMode="decimal"
-                            className="weight-input"
-                            placeholder="0"
-                            value={weights[ex.id] || ''}
-                            onChange={e => setWeights(prev => ({ ...prev, [ex.id]: e.target.value }))}
-                          />
-                          <button className="spinner-btn" onClick={() => set(val + 2.5)}>+</button>
+              <div className="save-set-tables">
+                {EXERCISES.filter(e => selectedIds.includes(e.id)).map(ex => {
+                  const sets = weights[ex.id] || [];
+                  return (
+                    <div key={ex.id} className="set-table">
+                      <div className="set-table-header">{ex.nameKo}</div>
+
+                      {sets.length > 0 && (
+                        <div className="set-table-rows">
+                          <div className="set-row set-row-head">
+                            <span className="set-num-col" />
+                            <span className="set-col-label">횟수</span>
+                            <span className="set-col-label">중량</span>
+                            <span style={{width:24}} />
+                          </div>
+                          {sets.map((s, i) => (
+                            <div key={i} className="set-row">
+                              <span className="set-num-col">{i + 1}</span>
+                              <div className="spinner-group">
+                                <button className="spinner-btn" onClick={() => stepSet(ex.id, i, 'reps', -1)}>−</button>
+                                <input
+                                  type="text" inputMode="numeric"
+                                  className="set-input"
+                                  placeholder="0"
+                                  value={s.reps}
+                                  onChange={e => updateSet(ex.id, i, 'reps', e.target.value)}
+                                />
+                                <button className="spinner-btn" onClick={() => stepSet(ex.id, i, 'reps', 1)}>+</button>
+                              </div>
+                              <div className="spinner-group">
+                                <button className="spinner-btn" onClick={() => stepSet(ex.id, i, 'weight', -2.5)}>−</button>
+                                <input
+                                  type="text" inputMode="decimal"
+                                  className="set-input set-input-wide"
+                                  placeholder="0"
+                                  value={s.weight}
+                                  onChange={e => updateSet(ex.id, i, 'weight', e.target.value)}
+                                />
+                                <button className="spinner-btn" onClick={() => stepSet(ex.id, i, 'weight', 2.5)}>+</button>
+                              </div>
+                              <span className="set-unit">kg</span>
+                              <button className="set-remove-btn" onClick={() => removeSet(ex.id, i)}>×</button>
+                            </div>
+                          ))}
                         </div>
-                        <span className="weight-unit">kg</span>
-                      </div>
-                    );
-                  })}
-                </div>
+                      )}
+
+                      <button className="set-add-btn" onClick={() => addSet(ex.id)}>
+                        + 세트 추가
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             )}
 
