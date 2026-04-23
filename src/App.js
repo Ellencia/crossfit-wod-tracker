@@ -536,10 +536,10 @@ function App() {
                         <div className="spinner-group">
                           <button className="spinner-btn" onClick={() => set(val - 2.5)}>−</button>
                           <input
-                            type="number"
+                            type="text"
+                            inputMode="decimal"
                             className="weight-input"
                             placeholder="0"
-                            min="0"
                             value={weights[ex.id] || ''}
                             onChange={e => setWeights(prev => ({ ...prev, [ex.id]: e.target.value }))}
                           />
@@ -574,7 +574,8 @@ function App() {
                 <div className="spinner-group">
                   <button className="spinner-btn" onClick={() => setCompMin(v => String(Math.max(0, Number(v||0) - 1)))}>−</button>
                   <input
-                    type="number"
+                    type="text"
+                    inputMode="numeric"
                     className="time-input"
                     placeholder="분"
                     min="0" max="99"
@@ -587,7 +588,8 @@ function App() {
                 <div className="spinner-group">
                   <button className="spinner-btn" onClick={() => setCompSec(v => String(Math.min(59, Math.max(0, Number(v||0) - 1))))}>−</button>
                   <input
-                    type="number"
+                    type="text"
+                    inputMode="numeric"
                     className="time-input"
                     placeholder="초"
                     min="0" max="59"

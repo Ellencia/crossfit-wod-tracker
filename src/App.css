@@ -208,8 +208,6 @@ body {
 
 .weight-input:focus { border-color: #333; background: #161616; }
 .weight-input::placeholder { color: #333; font-weight: 400; }
-.weight-input::-webkit-inner-spin-button,
-.weight-input::-webkit-outer-spin-button { -webkit-appearance: none; }
 
 .weight-unit {
   color: #555;
@@ -257,8 +255,6 @@ body {
 
 .time-input:focus { background: #161616; }
 .time-input::placeholder { color: #333; font-weight: 400; font-size: 0.78rem; }
-.time-input::-webkit-inner-spin-button,
-.time-input::-webkit-outer-spin-button { -webkit-appearance: none; }
 
 .time-sep {
   color: #555;
