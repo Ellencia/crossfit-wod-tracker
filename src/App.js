@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Model from 'react-body-highlighter';
-import { EXERCISES, CATEGORIES, combineExercises } from './exerciseDB';
+import { EXERCISES, CATEGORIES, PATTERNS, combineExercises } from './exerciseDB';
 import { getRecoveryAdvice } from './recoveryDB';
 import './App.css';
 
@@ -31,7 +31,9 @@ function App() {
 
   // DB 모드 상태
   const [searchQuery, setSearchQuery] = useState('');
+  const [filterMode, setFilterMode] = useState('category');
   const [selectedCategory, setSelectedCategory] = useState('전체');
+  const [selectedPattern, setSelectedPattern] = useState('전체');
   const [selectedIds, setSelectedIds] = useState([]);
 
   const [result, setResult] = useState(null);
@@ -79,7 +81,9 @@ function App() {
   };
 
   const filteredExercises = EXERCISES.filter(e => {
-    const matchCat = selectedCategory === '전체' || e.category === selectedCategory;
+    const matchCat = filterMode === 'category'
+      ? (selectedCategory === '전체' || e.category === selectedCategory)
+      : (selectedPattern === '전체' || e.pattern === selectedPattern);
     const q = searchQuery.toLowerCase();
     const matchQ = !q || e.name.toLowerCase().includes(q) || e.nameKo.includes(q);
     return matchCat && matchQ;
@@ -137,17 +141,45 @@ function App() {
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                 />
-                <div className="category-tabs">
-                  {CATEGORIES.map(cat => (
-                    <button
-                      key={cat}
-                      className={`cat-btn ${selectedCategory === cat ? 'active' : ''}`}
-                      onClick={() => setSelectedCategory(cat)}
-                    >
-                      {cat}
-                    </button>
-                  ))}
+                <div className="filter-mode-toggle">
+                  <button
+                    className={`filter-mode-btn ${filterMode === 'category' ? 'active' : ''}`}
+                    onClick={() => setFilterMode('category')}
+                  >
+                    장비
+                  </button>
+                  <button
+                    className={`filter-mode-btn ${filterMode === 'pattern' ? 'active' : ''}`}
+                    onClick={() => setFilterMode('pattern')}
+                  >
+                    동작 패턴
+                  </button>
                 </div>
+                {filterMode === 'category' ? (
+                  <div className="category-tabs">
+                    {CATEGORIES.map(cat => (
+                      <button
+                        key={cat}
+                        className={`cat-btn ${selectedCategory === cat ? 'active' : ''}`}
+                        onClick={() => setSelectedCategory(cat)}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="category-tabs">
+                    {PATTERNS.map(pat => (
+                      <button
+                        key={pat}
+                        className={`cat-btn ${selectedPattern === pat ? 'active' : ''}`}
+                        onClick={() => setSelectedPattern(pat)}
+                      >
+                        {pat}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="exercise-grid">
