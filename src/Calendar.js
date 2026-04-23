@@ -42,9 +42,17 @@ export default function Calendar({ records, onDelete }) {
     <div className="calendar-section">
       {/* ── 월 이동 ── */}
       <div className="cal-nav">
-        <button className="cal-nav-btn" onClick={() => setViewDate(new Date(year, month - 1, 1))}>&#8249;</button>
+        <button className="cal-nav-btn" onClick={() => setViewDate(new Date(year, month - 1, 1))} aria-label="이전 달">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M10 3L5 8L10 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
         <span className="cal-nav-title">{year}년 {month + 1}월</span>
-        <button className="cal-nav-btn" onClick={() => setViewDate(new Date(year, month + 1, 1))}>&#8250;</button>
+        <button className="cal-nav-btn" onClick={() => setViewDate(new Date(year, month + 1, 1))} aria-label="다음 달">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M6 3L11 8L6 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
       </div>
 
       {/* ── 달력 그리드 ── */}
