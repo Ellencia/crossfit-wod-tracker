@@ -1,11 +1,11 @@
 export const VALID_MUSCLE_IDS = new Set([
   'trapezius', 'upper-back', 'lower-back',
   'chest', 'biceps', 'triceps',
-  'forearm', 'back-deltoids', 'front-deltoids',
+  'forearm', 'deltoids',
   'abs', 'obliques',
-  'adductor', 'hamstring', 'quadriceps',
+  'adductors', 'hamstring', 'quadriceps',
   'abductors', 'calves', 'gluteal',
-  'head', 'tibialis',
+  'head', 'tibialis', 'neck',
 ]);
 
 export const SYSTEM_PROMPT = `You are an elite CrossFit coach and sports physiologist. Analyze the WOD and respond ONLY in JSON format.

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import Model from 'react-body-highlighter';
+import Body from 'react-muscle-highlighter';
 import { EXERCISES, CATEGORIES, PATTERNS, combineExercises } from './exerciseDB';
 import { getRecoveryAdvice } from './recoveryDB';
-import { getMuscleFromPoints, MUSCLE_KO } from './muscleTooltip';
+import { MUSCLE_KO } from './muscleTooltip';
 import { callLocalOnce, aggregate } from './analyzeUtils';
 import { useWodStorage, toDateKey } from './useWodStorage';
 import Calendar from './Calendar';
@@ -18,12 +18,19 @@ const SAMPLE_WODS = [
 const VALID_MUSCLE_IDS = new Set([
   'trapezius', 'upper-back', 'lower-back',
   'chest', 'biceps', 'triceps',
-  'forearm', 'back-deltoids', 'front-deltoids',
+  'forearm', 'back-deltoids', 'front-deltoids', 'deltoids',
   'abs', 'obliques',
-  'adductor', 'hamstring', 'quadriceps',
+  'adductor', 'adductors', 'hamstring', 'quadriceps',
   'abductors', 'calves', 'gluteal',
-  'head', 'tibialis',
+  'head', 'tibialis', 'neck', 'knees',
 ]);
+
+// exerciseDB/AI의 구형 ID → 라이브러리 slug 변환
+const SLUG_MAP = {
+  'front-deltoids': 'deltoids',
+  'back-deltoids':  'deltoids',
+  'adductor':       'adductors',
+};
 
 function App() {
   const [mode, setMode] = useState('db');
@@ -190,17 +197,22 @@ function App() {
   // ── 시각화 데이터 ─────────────────────────────────────────
   const getHighlightData = () => {
     if (!result) return [];
-    const groups = { high: [], medium: [], low: [] };
+    const colorMap = { high: '#ef4444', medium: '#f97316', low: '#22c55e' };
+    const seen = new Set();
+    const items = [];
     result.muscles.forEach(m => {
-      const key = (m.intensity || '').toLowerCase();
-      const validIds = (m.muscleIds || []).filter(id => VALID_MUSCLE_IDS.has(id));
-      (groups[key] || groups.low).push(...validIds);
+      const color = colorMap[(m.intensity || '').toLowerCase()] || '#22c55e';
+      (m.muscleIds || [])
+        .filter(id => VALID_MUSCLE_IDS.has(id))
+        .forEach(id => {
+          const slug = SLUG_MAP[id] || id;
+          if (!seen.has(slug)) {
+            seen.add(slug);
+            items.push({ slug, color });
+          }
+        });
     });
-    return [
-      { name: 'high',   muscles: groups.high,   frequency: 1 },
-      { name: 'medium', muscles: groups.medium, frequency: 2 },
-      { name: 'low',    muscles: groups.low,    frequency: 3 },
-    ].filter(g => g.muscles.length > 0);
+    return items;
   };
 
   return (
@@ -425,34 +437,33 @@ function App() {
             <div
               className="model-container"
               onMouseMove={(e) => {
-                if (e.target.tagName === 'polygon') {
-                  const muscle = getMuscleFromPoints(e.target.getAttribute('points'));
-                  const name = muscle ? (MUSCLE_KO[muscle] || muscle) : null;
-                  if (name) {
-                    setTooltip({ x: e.clientX, y: e.clientY, name });
-                    return;
-                  }
-                }
-                setTooltip(null);
+                const slug = e.target.id;
+                const name = slug ? MUSCLE_KO[slug] : null;
+                if (name) setTooltip({ x: e.clientX, y: e.clientY, name });
+                else setTooltip(null);
               }}
               onMouseLeave={() => setTooltip(null)}
             >
               <div className="model-view">
                 <h3>앞면</h3>
-                <Model
+                <Body
                   data={getHighlightData()}
-                  highlightedColors={['#ef4444', '#f97316', '#22c55e']}
-                  style={{ width: '180px' }}
-                  type="anterior"
+                  side="front"
+                  gender="male"
+                  scale={0.9}
+                  defaultFill="#2a2a2a"
+                  border="#444"
                 />
               </div>
               <div className="model-view">
                 <h3>뒷면</h3>
-                <Model
+                <Body
                   data={getHighlightData()}
-                  highlightedColors={['#ef4444', '#f97316', '#22c55e']}
-                  style={{ width: '180px' }}
-                  type="posterior"
+                  side="back"
+                  gender="male"
+                  scale={0.9}
+                  defaultFill="#2a2a2a"
+                  border="#444"
                 />
               </div>
             </div>

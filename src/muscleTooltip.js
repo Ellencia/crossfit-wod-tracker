@@ -118,6 +118,14 @@ export const MUSCLE_KO = {
   'upper-back': '광배근',
   'lower-back': '척추기립근',
   tibialis: '전경골근',
+  deltoids: '삼각근',
+  adductors: '내전근',
+  neck: '목',
+  knees: '무릎',
+  ankles: '발목',
+  hands: '손',
+  feet: '발',
+  head: '머리',
 };
 
 export function getMuscleFromPoints(pointsAttr) {
