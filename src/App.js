@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Model from 'react-body-highlighter';
 import { EXERCISES, CATEGORIES, PATTERNS, combineExercises } from './exerciseDB';
 import { getRecoveryAdvice } from './recoveryDB';
+import { getMuscleFromPoints, MUSCLE_KO } from './muscleTooltip';
 import './App.css';
 
 const SAMPLE_WODS = [
@@ -37,6 +38,7 @@ function App() {
   const [selectedIds, setSelectedIds] = useState([]);
 
   const [result, setResult] = useState(null);
+  const [tooltip, setTooltip] = useState(null); // { x, y, name }
 
   // ── AI 분석 ──────────────────────────────────────────────
   const analyzeAI = async () => {
@@ -249,7 +251,21 @@ function App() {
 
         {result && (
           <section className="result-section">
-            <div className="model-container">
+            <div
+              className="model-container"
+              onMouseMove={(e) => {
+                if (e.target.tagName === 'polygon') {
+                  const muscle = getMuscleFromPoints(e.target.getAttribute('points'));
+                  const name = muscle ? (MUSCLE_KO[muscle] || muscle) : null;
+                  if (name) {
+                    setTooltip({ x: e.clientX, y: e.clientY, name });
+                    return;
+                  }
+                }
+                setTooltip(null);
+              }}
+              onMouseLeave={() => setTooltip(null)}
+            >
               <div className="model-view">
                 <h3>앞면</h3>
                 <Model
@@ -336,6 +352,14 @@ function App() {
           </section>
         )}
       </main>
+      {tooltip && (
+        <div
+          className="muscle-tooltip"
+          style={{ left: tooltip.x + 14, top: tooltip.y - 10 }}
+        >
+          {tooltip.name}
+        </div>
+      )}
     </div>
   );
 }
