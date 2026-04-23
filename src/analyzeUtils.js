@@ -1,3 +1,5 @@
+import { EXERCISES } from './exerciseDB';
+
 export const VALID_MUSCLE_IDS = new Set([
   'trapezius', 'upper-back', 'lower-back',
   'chest', 'biceps', 'triceps',
@@ -8,6 +10,8 @@ export const VALID_MUSCLE_IDS = new Set([
   'head', 'tibialis', 'neck',
 ]);
 
+const EXERCISE_LIST = EXERCISES.map(e => `${e.id}:${e.name}`).join(', ');
+
 export const SYSTEM_PROMPT = `You are an elite CrossFit coach and sports physiologist. Analyze the WOD and respond ONLY in JSON format.
 
 CRITICAL RULES:
@@ -17,12 +21,14 @@ CRITICAL RULES:
 4. muscleIds must ONLY use values from the allowed list
 5. Be THOROUGH — list every muscle group involved, including stabilizers. Aim for 6-10 muscle entries.
 6. Each entry should cover ONE muscle group only
+7. Identify which exercises in the WOD match our exercise DB and return their IDs in "exerciseIds". Only use IDs from the exercise list below.
 
 JSON format:
 {
   "muscles": [
     { "name": "한국어 근육명", "muscleIds": ["id1"], "intensity": "high" }
   ],
+  "exerciseIds": ["thruster", "pullup"],
   "summary": "상세한 한국어 와드 평가 (아래 항목을 모두 포함, 각 항목은 줄바꿈 없이 이어서 서술)",
   "recovery": "한국어 회복 권장사항 1-2문장"
 }
@@ -36,6 +42,7 @@ JSON format:
   중요: 근육 이름(예: 대퇴사두근, 햄스트링)과 운동 이름(예: Thruster, Pull-up)은 반드시 **굵게** 표시하라.
 
 Allowed muscleIds: ${[...VALID_MUSCLE_IDS].join(', ')}
+Exercise DB: ${EXERCISE_LIST}
 
 intensity values: "high" (주동근, 고중량 주도근), "medium" (보조근, 협력근), "low" (안정화근, 코어 지지)`;
 
@@ -73,12 +80,23 @@ export function aggregate(results) {
     })
     .sort((a, b) => INTENSITY_SCORE[b.intensity] - INTENSITY_SCORE[a.intensity]);
 
+  // exerciseIds 집계 — 과반수 이상
+  const exVotes = {};
+  results.forEach(result => {
+    (result.exerciseIds || []).forEach(id => {
+      exVotes[id] = (exVotes[id] || 0) + 1;
+    });
+  });
+  const threshold = Math.ceil(results.length / 2);
+  const exerciseIds = Object.keys(exVotes).filter(id => exVotes[id] >= threshold);
+
   const bestSummary = results
     .map(r => r.summary || '')
     .reduce((best, s) => s.length > best.length ? s : best, '');
 
   return {
     muscles,
+    exerciseIds,
     summary: bestSummary || results[0]?.summary || '',
     recovery: results[0]?.recovery || '',
     meta: { runs: results.length, aggregated: true },

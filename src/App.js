@@ -92,6 +92,8 @@ function App() {
     setLoading(true);
     setError('');
     setResult(null);
+    setWeights({});
+    setSavedKey(null);
     try {
       const response = await fetch('/api/analyze', {
         method: 'POST',
@@ -114,6 +116,8 @@ function App() {
     setLoading(true);
     setError('');
     setResult(null);
+    setWeights({});
+    setSavedKey(null);
     try {
       const settled = await Promise.allSettled(
         Array.from({ length: 5 }, () => callLocalOnce(wod, localUrl))
@@ -170,17 +174,17 @@ function App() {
 
   // ── WOD 저장 ─────────────────────────────────────────────
   const saveToday = () => {
+    const matchedIds = mode === 'db' ? selectedIds : (result?.exerciseIds || []);
     const wodText = mode === 'db'
-      ? EXERCISES.filter(e => selectedIds.includes(e.id)).map(e => e.nameKo).join(', ')
+      ? EXERCISES.filter(e => matchedIds.includes(e.id)).map(e => e.nameKo).join(', ')
       : wod;
     const completionTime = (compMin || compSec)
       ? `${(compMin || '0').padStart(2,'0')}:${(compSec || '0').padStart(2,'0')}`
       : '';
-    const exerciseNames = mode === 'db'
-      ? Object.fromEntries(EXERCISES.filter(e => selectedIds.includes(e.id)).map(e => [e.id, e.nameKo]))
+    const exerciseNames = matchedIds.length > 0
+      ? Object.fromEntries(EXERCISES.filter(e => matchedIds.includes(e.id)).map(e => [e.id, e.nameKo]))
       : {};
-    // 빈 세트 행 제거
-    const cleanWeights = mode === 'db'
+    const cleanWeights = matchedIds.length > 0
       ? Object.fromEntries(
           Object.entries(weights).map(([id, sets]) => [
             id, (sets || []).filter(s => s.reps || s.weight)
@@ -450,7 +454,7 @@ function App() {
                   data={getHighlightData()}
                   side="front"
                   gender="male"
-                  scale={0.9}
+                  scale={1.2}
                   defaultFill="#2a2a2a"
                   border="#444"
                 />
@@ -461,7 +465,7 @@ function App() {
                   data={getHighlightData()}
                   side="back"
                   gender="male"
-                  scale={0.9}
+                  scale={1.2}
                   defaultFill="#2a2a2a"
                   border="#444"
                 />
@@ -563,10 +567,13 @@ function App() {
               />
             </div>
 
-            {/* 운동별 세트 테이블 (DB 모드) */}
-            {mode === 'db' && selectedIds.length > 0 && (
+            {/* 운동별 세트 테이블 (DB 모드 또는 AI가 운동 인식한 경우) */}
+            {(() => {
+              const exIds = mode === 'db' ? selectedIds : (result?.exerciseIds || []);
+              if (!exIds.length) return null;
+              return (
               <div className="save-set-tables">
-                {EXERCISES.filter(e => selectedIds.includes(e.id)).map(ex => {
+                {EXERCISES.filter(e => exIds.includes(e.id)).map(ex => {
                   const sets = weights[ex.id] || [];
                   return (
                     <div key={ex.id} className="set-table">
@@ -619,10 +626,11 @@ function App() {
                   );
                 })}
               </div>
-            )}
+              );
+            })()}
 
-            {/* AI/로컬 모드 중량 메모 */}
-            {mode !== 'db' && (
+            {/* AI/로컬 모드에서 운동 인식 실패 시 중량 메모 fallback */}
+            {mode !== 'db' && !(result?.exerciseIds?.length) && (
               <div className="save-row">
                 <span className="save-field-label">중량 메모</span>
                 <input
