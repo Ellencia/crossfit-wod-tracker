@@ -416,10 +416,42 @@ body {
   gap: 16px;
 }
 
+.recovery-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .recovery-box h3 {
   color: #4ade80;
   font-size: 1rem;
-  margin-bottom: 4px;
+  margin: 0;
+}
+
+.recovery-tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.recovery-tab-btn {
+  background: #1a3a2a;
+  border: 1px solid #1a3a2a;
+  border-radius: 6px;
+  color: #4ade80;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.8rem;
+  padding: 5px 12px;
+  transition: all 0.15s;
+  opacity: 0.6;
+}
+
+.recovery-tab-btn.active {
+  background: #14532d;
+  border-color: #4ade80;
+  opacity: 1;
 }
 
 .recovery-item {

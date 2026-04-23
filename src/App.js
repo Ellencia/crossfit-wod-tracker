@@ -39,6 +39,7 @@ function App() {
 
   const [result, setResult] = useState(null);
   const [tooltip, setTooltip] = useState(null); // { x, y, name }
+  const [recoveryTab, setRecoveryTab] = useState('stretch');
 
   // ── AI 분석 ──────────────────────────────────────────────
   const analyzeAI = async () => {
@@ -90,6 +91,17 @@ function App() {
     const matchQ = !q || e.name.toLowerCase().includes(q) || e.nameKo.includes(q);
     return matchCat && matchQ;
   });
+
+  // **text** → <strong> 렌더링
+  const renderBold = (text) => {
+    if (!text) return null;
+    const parts = text.split(/(\*\*[^*]+\*\*)/g);
+    return parts.map((part, i) =>
+      part.startsWith('**') && part.endsWith('**')
+        ? <strong key={i}>{part.slice(2, -2)}</strong>
+        : part
+    );
+  };
 
   // ── 시각화 데이터 ─────────────────────────────────────────
   const getHighlightData = () => {
@@ -314,35 +326,45 @@ function App() {
             {result.summary && (
               <div className="summary-box">
                 <h3>총평</h3>
-                <p>{result.summary}</p>
+                <p>{renderBold(result.summary)}</p>
               </div>
             )}
 
             {result.muscles?.length > 0 && (() => {
               const advice = getRecoveryAdvice(result.muscles);
               if (!advice.length) return null;
+              const TABS = [
+                { key: 'stretch',    icon: '🤸', label: '스트레칭' },
+                { key: 'foamRoller', icon: '🪵', label: '폼롤러' },
+                { key: 'massageGun', icon: '🔫', label: '마사지건' },
+              ];
               return (
                 <div className="recovery-box">
-                  <h3>회복 권장사항</h3>
+                  <div className="recovery-header">
+                    <h3>회복 권장사항</h3>
+                    <div className="recovery-tabs">
+                      {TABS.map(t => (
+                        <button
+                          key={t.key}
+                          className={`recovery-tab-btn ${recoveryTab === t.key ? 'active' : ''}`}
+                          onClick={() => setRecoveryTab(t.key)}
+                        >
+                          {t.icon} {t.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                   {advice.map(({ id, muscle, info }) => (
                     <div key={id} className="recovery-item">
                       <div className="recovery-muscle">
                         <span className={`recovery-badge ${muscle?.intensity}`}>{muscle?.intensity === 'high' ? '고강도' : '중강도'}</span>
                         <span className="recovery-muscle-name">{info.name}</span>
                       </div>
-                      <div className="recovery-methods">
-                        <div className="recovery-method">
-                          <span className="method-icon">🤸</span>
-                          <span>{info.stretch}</span>
-                        </div>
-                        <div className="recovery-method">
-                          <span className="method-icon">🪵</span>
-                          <span>{info.foamRoller}</span>
-                        </div>
-                        <div className="recovery-method">
-                          <span className="method-icon">🔫</span>
-                          <span>{info.massageGun}</span>
-                        </div>
+                      <div className="recovery-method">
+                        <span className="method-icon">
+                          {TABS.find(t => t.key === recoveryTab)?.icon}
+                        </span>
+                        <span>{info[recoveryTab]}</span>
                       </div>
                     </div>
                   ))}
