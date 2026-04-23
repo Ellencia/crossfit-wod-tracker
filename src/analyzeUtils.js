@@ -86,9 +86,9 @@ export function aggregate(results) {
 }
 
 export async function callLocalOnce(wod, baseUrl = 'http://localhost:1234') {
+  // Content-Type 헤더를 생략해 text/plain으로 전송 → CORS 프리플라이트(OPTIONS) 없이 직접 POST
   const res = await fetch(`${baseUrl}/v1/chat/completions`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
