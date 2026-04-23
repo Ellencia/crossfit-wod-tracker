@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import Model from 'react-body-highlighter';
 import { EXERCISES, CATEGORIES, combineExercises } from './exerciseDB';
-import logo from './assets/Logo1.webp';
 import './App.css';
 
 const SAMPLE_WODS = [
@@ -104,7 +103,7 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <img src={logo} alt="logo" className="app-logo" />
+        <h1>CrossFit WOD Muscle Analyzer</h1>
         <p>오늘의 WOD를 입력하면 자극받는 근육 부위를 시각화해드립니다</p>
       </header>
 
