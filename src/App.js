@@ -49,6 +49,7 @@ function App() {
   const [appView, setAppView] = useState('analyze');
   const { records, saveRecord, deleteRecord } = useWodStorage();
   const [savedKey, setSavedKey] = useState(null); // 방금 저장한 날짜 키
+  const [saveDate, setSaveDate] = useState(toDateKey()); // 저장할 날짜
 
   // ── AI 분석 ──────────────────────────────────────────────
   const analyzeAI = async () => {
@@ -134,12 +135,11 @@ function App() {
 
   // ── WOD 저장 ─────────────────────────────────────────────
   const saveToday = () => {
-    const key = toDateKey();
     const wodText = mode === 'db'
       ? EXERCISES.filter(e => selectedIds.includes(e.id)).map(e => e.nameKo).join(', ')
       : wod;
-    saveRecord(key, { wodText, muscles: result.muscles, summary: result.summary, mode });
-    setSavedKey(key);
+    saveRecord(saveDate, { wodText, muscles: result.muscles, summary: result.summary, mode });
+    setSavedKey(saveDate);
   };
 
   // ── 시각화 데이터 ─────────────────────────────────────────
@@ -493,11 +493,18 @@ function App() {
         {/* ── 저장 버튼 ── */}
         {result && (
           <div className="save-bar">
-            {savedKey === toDateKey() ? (
-              <span className="save-done">✓ {savedKey} 기록 저장 완료</span>
+            <input
+              type="date"
+              className="save-date-input"
+              value={saveDate}
+              max={toDateKey()}
+              onChange={e => { setSaveDate(e.target.value); setSavedKey(null); }}
+            />
+            {savedKey === saveDate ? (
+              <span className="save-done">✓ {savedKey} 저장 완료</span>
             ) : (
               <button className="save-btn" onClick={saveToday}>
-                📅 오늘({toDateKey()}) 기록 저장
+                📅 기록 저장
               </button>
             )}
           </div>

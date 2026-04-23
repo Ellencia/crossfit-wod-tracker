@@ -84,9 +84,26 @@ body {
 
 .save-bar {
   display: flex;
+  align-items: center;
   justify-content: center;
+  gap: 8px;
   margin-top: 8px;
 }
+
+.save-date-input {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  color: #aaa;
+  font-family: inherit;
+  font-size: 0.88rem;
+  padding: 9px 12px;
+  outline: none;
+  cursor: pointer;
+}
+
+.save-date-input:focus { border-color: #ef4444; }
+.save-date-input::-webkit-calendar-picker-indicator { filter: invert(0.5); cursor: pointer; }
 
 .save-btn {
   background: #1a1a1a;
