@@ -135,12 +135,15 @@ export default function Calendar({ records, onDelete }) {
                         </span>
                         <div className="cal-set-tags">
                           {(sets || []).map((s, i) => (
-                            <span key={i} className="cal-set-tag">
-                              {i + 1}세트&nbsp;
-                              {s.reps && <strong>{s.reps}회</strong>}
-                              {s.reps && s.weight && ' × '}
-                              {s.weight && <strong>{s.weight}kg</strong>}
-                            </span>
+                            <React.Fragment key={i}>
+                              {i > 0 && <span className="cal-set-sep">/</span>}
+                              <span className="cal-set-tag">
+                                {i + 1}세트&nbsp;
+                                {s.reps && <strong>{s.reps}회</strong>}
+                                {s.reps && s.weight && ' × '}
+                                {s.weight && <strong>{s.weight}kg</strong>}
+                              </span>
+                            </React.Fragment>
                           ))}
                         </div>
                       </div>
