@@ -112,6 +112,46 @@ export default function Calendar({ records, onDelete }) {
             </div>
           </div>
 
+          {/* 중량 */}
+          {record.weights && (
+            Object.keys(record.weights).length > 0 && (() => {
+              const isText = '__text' in record.weights;
+              return (
+                <div className="cal-perf">
+                  <div className="cal-section-label">중량</div>
+                  {isText
+                    ? <p className="cal-perf-text">{record.weights.__text}</p>
+                    : (
+                      <div className="cal-weight-grid">
+                        {Object.entries(record.weights).map(([id, kg]) => (
+                          <span key={id} className="cal-weight-tag">
+                            {record.exerciseNames?.[id] || id} <strong>{kg}kg</strong>
+                          </span>
+                        ))}
+                      </div>
+                    )
+                  }
+                </div>
+              );
+            })()
+          )}
+
+          {/* 완료 시간 */}
+          {record.completionTime && (
+            <div className="cal-perf">
+              <div className="cal-section-label">완료 시간</div>
+              <span className="cal-time">{record.completionTime}</span>
+            </div>
+          )}
+
+          {/* 메모 */}
+          {record.note && (
+            <div className="cal-perf">
+              <div className="cal-section-label">메모</div>
+              <p className="cal-perf-text">{record.note}</p>
+            </div>
+          )}
+
           {record.summary && (
             <div className="cal-summary">
               <div className="cal-section-label">총평</div>

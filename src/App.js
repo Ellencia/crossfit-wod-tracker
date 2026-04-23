@@ -48,8 +48,14 @@ function App() {
   // 앱 뷰 & 달력 저장
   const [appView, setAppView] = useState('analyze');
   const { records, saveRecord, deleteRecord } = useWodStorage();
-  const [savedKey, setSavedKey] = useState(null); // 방금 저장한 날짜 키
-  const [saveDate, setSaveDate] = useState(toDateKey()); // 저장할 날짜
+  const [savedKey, setSavedKey] = useState(null);
+  const [saveDate, setSaveDate] = useState(toDateKey());
+
+  // 퍼포먼스 기록
+  const [weights, setWeights] = useState({});   // { exerciseId: "60" }
+  const [compMin, setCompMin] = useState('');
+  const [compSec, setCompSec] = useState('');
+  const [perfNote, setPerfNote] = useState('');
 
   // ── AI 분석 ──────────────────────────────────────────────
   const analyzeAI = async () => {
@@ -138,7 +144,16 @@ function App() {
     const wodText = mode === 'db'
       ? EXERCISES.filter(e => selectedIds.includes(e.id)).map(e => e.nameKo).join(', ')
       : wod;
-    saveRecord(saveDate, { wodText, muscles: result.muscles, summary: result.summary, mode });
+    const completionTime = (compMin || compSec)
+      ? `${(compMin || '0').padStart(2,'0')}:${(compSec || '0').padStart(2,'0')}`
+      : '';
+    const exerciseNames = mode === 'db'
+      ? Object.fromEntries(EXERCISES.filter(e => selectedIds.includes(e.id)).map(e => [e.id, e.nameKo]))
+      : {};
+    saveRecord(saveDate, {
+      wodText, muscles: result.muscles, summary: result.summary, mode,
+      weights, exerciseNames, completionTime, note: perfNote,
+    });
     setSavedKey(saveDate);
   };
 
@@ -492,21 +507,102 @@ function App() {
 
         {/* ── 저장 버튼 ── */}
         {result && (
-          <div className="save-bar">
-            <input
-              type="date"
-              className="save-date-input"
-              value={saveDate}
-              max={toDateKey()}
-              onChange={e => { setSaveDate(e.target.value); setSavedKey(null); }}
-            />
-            {savedKey === saveDate ? (
-              <span className="save-done">✓ {savedKey} 저장 완료</span>
-            ) : (
-              <button className="save-btn" onClick={saveToday}>
-                📅 기록 저장
-              </button>
+          <div className="save-panel">
+            <div className="save-panel-title">📅 기록 저장</div>
+
+            {/* 날짜 */}
+            <div className="save-row">
+              <span className="save-field-label">날짜</span>
+              <input
+                type="date"
+                className="save-date-input"
+                value={saveDate}
+                max={toDateKey()}
+                onChange={e => { setSaveDate(e.target.value); setSavedKey(null); }}
+              />
+            </div>
+
+            {/* 운동별 중량 (DB 모드) */}
+            {mode === 'db' && selectedIds.length > 0 && (
+              <div className="save-row save-weights">
+                <span className="save-field-label">중량</span>
+                <div className="weight-grid">
+                  {EXERCISES.filter(e => selectedIds.includes(e.id)).map(ex => (
+                    <div key={ex.id} className="weight-item">
+                      <span className="weight-name">{ex.nameKo}</span>
+                      <input
+                        type="number"
+                        className="weight-input"
+                        placeholder="—"
+                        min="0"
+                        value={weights[ex.id] || ''}
+                        onChange={e => setWeights(prev => ({ ...prev, [ex.id]: e.target.value }))}
+                      />
+                      <span className="weight-unit">kg</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
+
+            {/* AI/로컬 모드 중량 메모 */}
+            {mode !== 'db' && (
+              <div className="save-row">
+                <span className="save-field-label">중량 메모</span>
+                <input
+                  type="text"
+                  className="save-text-input"
+                  placeholder="예) Thruster 43kg, DL 100kg"
+                  value={weights.__text || ''}
+                  onChange={e => setWeights({ __text: e.target.value })}
+                />
+              </div>
+            )}
+
+            {/* 완료 시간 */}
+            <div className="save-row">
+              <span className="save-field-label">완료 시간</span>
+              <div className="time-inputs">
+                <input
+                  type="number"
+                  className="time-input"
+                  placeholder="분"
+                  min="0" max="99"
+                  value={compMin}
+                  onChange={e => setCompMin(e.target.value)}
+                />
+                <span className="time-sep">:</span>
+                <input
+                  type="number"
+                  className="time-input"
+                  placeholder="초"
+                  min="0" max="59"
+                  value={compSec}
+                  onChange={e => setCompSec(e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* 메모 */}
+            <div className="save-row save-note-row">
+              <span className="save-field-label">메모</span>
+              <textarea
+                className="save-note-input"
+                placeholder="컨디션, 스케일링 내용, 느낀 점 등"
+                rows={2}
+                value={perfNote}
+                onChange={e => setPerfNote(e.target.value)}
+              />
+            </div>
+
+            {/* 저장 버튼 */}
+            <div className="save-actions">
+              {savedKey === saveDate ? (
+                <span className="save-done">✓ {savedKey} 저장 완료</span>
+              ) : (
+                <button className="save-btn" onClick={saveToday}>저장하기</button>
+              )}
+            </div>
           </div>
         )}
       </main>

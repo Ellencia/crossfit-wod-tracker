@@ -82,28 +82,176 @@ body {
   padding: 1px 6px;
 }
 
-.save-bar {
+.save-panel {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 20px;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+  flex-direction: column;
+  gap: 14px;
   margin-top: 8px;
 }
 
+.save-panel-title {
+  color: #ccc;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.save-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.save-field-label {
+  color: #555;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  min-width: 60px;
+  padding-top: 9px;
+  text-transform: uppercase;
+}
+
 .save-date-input {
-  background: #1a1a1a;
+  background: #111;
   border: 1px solid #333;
   border-radius: 8px;
   color: #aaa;
   font-family: inherit;
   font-size: 0.88rem;
-  padding: 9px 12px;
+  padding: 8px 12px;
   outline: none;
   cursor: pointer;
 }
 
 .save-date-input:focus { border-color: #ef4444; }
 .save-date-input::-webkit-calendar-picker-indicator { filter: invert(0.5); cursor: pointer; }
+
+/* 중량 그리드 */
+.save-weights { align-items: flex-start; }
+
+.weight-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex: 1;
+}
+
+.weight-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #111;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+
+.weight-name {
+  color: #aaa;
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.weight-input {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #333;
+  color: #e5e5e5;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  outline: none;
+  text-align: right;
+  width: 52px;
+}
+
+.weight-input:focus { border-bottom-color: #ef4444; }
+.weight-input::placeholder { color: #333; }
+.weight-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+.weight-unit {
+  color: #555;
+  font-size: 0.78rem;
+}
+
+/* AI 모드 중량 텍스트 */
+.save-text-input {
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 8px;
+  color: #e5e5e5;
+  flex: 1;
+  font-family: inherit;
+  font-size: 0.88rem;
+  outline: none;
+  padding: 8px 12px;
+}
+
+.save-text-input:focus { border-color: #ef4444; }
+.save-text-input::placeholder { color: #333; }
+
+/* 완료 시간 */
+.time-inputs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.time-input {
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 8px;
+  color: #e5e5e5;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  outline: none;
+  padding: 8px 0;
+  text-align: center;
+  width: 60px;
+}
+
+.time-input:focus { border-color: #ef4444; }
+.time-input::placeholder { color: #333; font-weight: 400; font-size: 0.78rem; }
+.time-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+.time-sep {
+  color: #555;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+/* 메모 */
+.save-note-row { align-items: flex-start; }
+
+.save-note-input {
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 8px;
+  color: #e5e5e5;
+  flex: 1;
+  font-family: inherit;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  outline: none;
+  padding: 8px 12px;
+  resize: vertical;
+}
+
+.save-note-input:focus { border-color: #ef4444; }
+.save-note-input::placeholder { color: #333; }
+
+/* 저장 버튼 */
+.save-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding-top: 4px;
+}
 
 .save-btn {
   background: #1a1a1a;

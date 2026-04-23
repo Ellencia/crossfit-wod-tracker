@@ -219,6 +219,37 @@
   padding: 2px 10px;
 }
 
+.cal-perf { display: flex; flex-direction: column; gap: 6px; }
+
+.cal-weight-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.cal-weight-tag {
+  background: #252525;
+  border-radius: 5px;
+  color: #aaa;
+  font-size: 0.8rem;
+  padding: 3px 10px;
+}
+
+.cal-weight-tag strong { color: #e5e5e5; }
+
+.cal-time {
+  color: #e5e5e5;
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.cal-perf-text {
+  color: #aaa;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
 .cal-summary p {
   color: #aaa;
   font-size: 0.85rem;
