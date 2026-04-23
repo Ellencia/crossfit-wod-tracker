@@ -3,6 +3,7 @@ import Model from 'react-body-highlighter';
 import { EXERCISES, CATEGORIES, PATTERNS, combineExercises } from './exerciseDB';
 import { getRecoveryAdvice } from './recoveryDB';
 import { getMuscleFromPoints, MUSCLE_KO } from './muscleTooltip';
+import { callLocalOnce, aggregate } from './analyzeUtils';
 import './App.css';
 
 const SAMPLE_WODS = [
@@ -25,10 +26,11 @@ const VALID_MUSCLE_IDS = new Set([
 function App() {
   const [mode, setMode] = useState('db');
 
-  // AI 모드 상태
+  // AI / 로컬 모드 공유 상태
   const [wod, setWod] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [localUrl, setLocalUrl] = useState('http://localhost:1234');
 
   // DB 모드 상태
   const [searchQuery, setSearchQuery] = useState('');
@@ -58,6 +60,26 @@ function App() {
       setResult(data);
     } catch (err) {
       setError('분석 중 오류가 발생했습니다. API 서버를 확인해주세요.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ── 로컬 AI 분석 ─────────────────────────────────────────
+  const analyzeLocal = async () => {
+    if (!wod.trim()) return;
+    setLoading(true);
+    setError('');
+    setResult(null);
+    try {
+      const settled = await Promise.allSettled(
+        Array.from({ length: 5 }, () => callLocalOnce(wod, localUrl))
+      );
+      const results = settled.filter(r => r.status === 'fulfilled').map(r => r.value);
+      if (!results.length) throw new Error('모든 요청 실패 — LM Studio가 실행 중인지 확인해주세요.');
+      setResult(aggregate(results));
+    } catch (err) {
+      setError(`로컬 AI 오류: ${err.message}`);
     } finally {
       setLoading(false);
     }
@@ -140,7 +162,13 @@ function App() {
               className={`mode-btn ${mode === 'ai' ? 'active' : ''}`}
               onClick={() => { setMode('ai'); setResult(null); setError(''); }}
             >
-              AI 모드
+              Groq AI
+            </button>
+            <button
+              className={`mode-btn ${mode === 'local' ? 'active' : ''}`}
+              onClick={() => { setMode('local'); setResult(null); setError(''); }}
+            >
+              로컬 AI
             </button>
           </div>
 
@@ -253,7 +281,46 @@ function App() {
                 onClick={analyzeAI}
                 disabled={loading || !wod.trim()}
               >
-                {loading ? 'AI 분석 중... (5회 집계)' : '근육 분석하기'}
+                {loading ? 'Groq AI 분석 중... (5회 집계)' : '근육 분석하기'}
+              </button>
+            </div>
+          )}
+
+          {/* 로컬 AI 모드 */}
+          {mode === 'local' && (
+            <div className="ai-mode">
+              <div className="local-url-row">
+                <span className="sample-label">서버 주소:</span>
+                <input
+                  className="search-input local-url-input"
+                  type="text"
+                  value={localUrl}
+                  onChange={e => setLocalUrl(e.target.value)}
+                  placeholder="http://localhost:1234"
+                  spellCheck={false}
+                />
+              </div>
+              <div className="sample-buttons">
+                <span className="sample-label">샘플:</span>
+                {SAMPLE_WODS.map((s, i) => (
+                  <button key={i} className="sample-btn" onClick={() => setWod(s)}>
+                    {s.split(':')[0]}
+                  </button>
+                ))}
+              </div>
+              <textarea
+                className="wod-input"
+                value={wod}
+                onChange={e => setWod(e.target.value)}
+                placeholder={"오늘의 WOD를 입력하세요\n예) Fran: 21-15-9 Thrusters (43kg), Pull-ups"}
+                rows={4}
+              />
+              <button
+                className="analyze-btn"
+                onClick={analyzeLocal}
+                disabled={loading || !wod.trim()}
+              >
+                {loading ? '로컬 AI 분석 중... (5회 집계)' : '근육 분석하기'}
               </button>
             </div>
           )}
