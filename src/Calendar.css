@@ -1,0 +1,238 @@
+.calendar-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── 월 이동 ── */
+.cal-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+
+.cal-nav-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #e5e5e5;
+}
+
+.cal-nav-btn {
+  background: #2a2a2a;
+  border: 1px solid #333;
+  border-radius: 6px;
+  color: #aaa;
+  cursor: pointer;
+  font-size: 1.2rem;
+  line-height: 1;
+  padding: 4px 12px;
+  transition: all 0.15s;
+}
+
+.cal-nav-btn:hover {
+  background: #333;
+  color: #ef4444;
+  border-color: #ef4444;
+}
+
+/* ── 달력 그리드 ── */
+.cal-grid {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  overflow: hidden;
+}
+
+.cal-weekday {
+  color: #555;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 10px 0;
+  text-align: center;
+}
+
+.cal-weekday:first-child { color: #ef4444; }
+.cal-weekday:last-child  { color: #60a5fa; }
+
+.cal-cell {
+  aspect-ratio: 1;
+  border-radius: 6px;
+  cursor: default;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 3px;
+  position: relative;
+  transition: background 0.12s;
+}
+
+.cal-cell.empty { cursor: default; }
+
+.cal-cell.has-record {
+  cursor: pointer;
+}
+
+.cal-cell.has-record:hover {
+  background: #252525;
+}
+
+.cal-cell.today .cal-day-num {
+  background: #ef4444;
+  border-radius: 50%;
+  color: white;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cal-cell.selected {
+  background: #2d1111;
+  outline: 1px solid #ef4444;
+}
+
+.cal-day-num {
+  color: #ccc;
+  font-size: 0.85rem;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.cal-cell.empty .cal-day-num { color: transparent; }
+
+.cal-dot {
+  background: #ef4444;
+  border-radius: 50%;
+  display: block;
+  height: 5px;
+  width: 5px;
+}
+
+/* ── 기록 상세 ── */
+.cal-detail {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+}
+
+.cal-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cal-detail-date {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #e5e5e5;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.cal-mode-badge {
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+}
+
+.cal-mode-badge.mode-db    { background: #1a2d1a; color: #4ade80; }
+.cal-mode-badge.mode-ai    { background: #1a1a2d; color: #818cf8; }
+.cal-mode-badge.mode-local { background: #2d1a0a; color: #fb923c; }
+
+.cal-delete-btn {
+  background: transparent;
+  border: 1px solid #333;
+  border-radius: 6px;
+  color: #666;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.78rem;
+  padding: 4px 10px;
+  transition: all 0.15s;
+}
+
+.cal-delete-btn:hover {
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.cal-section-label {
+  color: #555;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.cal-wod-text p {
+  color: #aaa;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  word-break: keep-all;
+}
+
+.cal-muscle-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cal-muscle-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.cal-intensity-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  width: 42px;
+  flex-shrink: 0;
+}
+
+.cal-muscle-group.high   .cal-intensity-label { color: #ef4444; }
+.cal-muscle-group.medium .cal-intensity-label { color: #f97316; }
+.cal-muscle-group.low    .cal-intensity-label { color: #22c55e; }
+
+.cal-muscle-tag {
+  background: #252525;
+  border-radius: 5px;
+  color: #ccc;
+  font-size: 0.78rem;
+  padding: 2px 10px;
+}
+
+.cal-summary p {
+  color: #aaa;
+  font-size: 0.85rem;
+  line-height: 1.8;
+  word-break: keep-all;
+}
+
+.cal-summary strong {
+  color: #e5e5e5;
+}
+
+.cal-empty-msg {
+  color: #444;
+  font-size: 0.88rem;
+  text-align: center;
+  padding: 24px 0;
+}

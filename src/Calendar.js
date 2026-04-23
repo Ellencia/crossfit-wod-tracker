@@ -1,0 +1,129 @@
+import React, { useState } from 'react';
+import './Calendar.css';
+
+const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
+const MODE_LABEL = { db: 'DB', ai: 'Groq AI', local: '로컬 AI' };
+const INTENSITY_LABEL = { high: '고강도', medium: '중강도', low: '저강도' };
+
+function renderBold(text) {
+  if (!text) return null;
+  return text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
+    part.startsWith('**') && part.endsWith('**')
+      ? <strong key={i}>{part.slice(2, -2)}</strong>
+      : part
+  );
+}
+
+function toDateKey(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+export default function Calendar({ records, onDelete }) {
+  const today = new Date();
+  const todayKey = toDateKey(today);
+
+  const [viewDate, setViewDate] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
+  const [selectedKey, setSelectedKey] = useState(null);
+
+  const year = viewDate.getFullYear();
+  const month = viewDate.getMonth();
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  const cells = [
+    ...Array(firstDay).fill(null),
+    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
+  ];
+
+  const record = selectedKey ? records[selectedKey] : null;
+
+  return (
+    <div className="calendar-section">
+      {/* ── 월 이동 ── */}
+      <div className="cal-nav">
+        <button className="cal-nav-btn" onClick={() => setViewDate(new Date(year, month - 1, 1))}>&#8249;</button>
+        <span className="cal-nav-title">{year}년 {month + 1}월</span>
+        <button className="cal-nav-btn" onClick={() => setViewDate(new Date(year, month + 1, 1))}>&#8250;</button>
+      </div>
+
+      {/* ── 달력 그리드 ── */}
+      <div className="cal-grid">
+        {WEEKDAYS.map(w => (
+          <div key={w} className="cal-weekday">{w}</div>
+        ))}
+        {cells.map((day, i) => {
+          if (!day) return <div key={`e-${i}`} className="cal-cell empty" />;
+          const key = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+          const has = !!records[key];
+          const isToday = key === todayKey;
+          const isSel = key === selectedKey;
+          return (
+            <div
+              key={key}
+              className={`cal-cell${has ? ' has-record' : ''}${isToday ? ' today' : ''}${isSel ? ' selected' : ''}`}
+              onClick={() => setSelectedKey(isSel ? null : key)}
+            >
+              <span className="cal-day-num">{day}</span>
+              {has && <span className="cal-dot" />}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ── 기록 상세 ── */}
+      {record && (
+        <div className="cal-detail">
+          <div className="cal-detail-header">
+            <div className="cal-detail-date">
+              {selectedKey}
+              <span className={`cal-mode-badge mode-${record.mode}`}>{MODE_LABEL[record.mode] || record.mode}</span>
+            </div>
+            <button
+              className="cal-delete-btn"
+              onClick={() => { onDelete(selectedKey); setSelectedKey(null); }}
+            >
+              삭제
+            </button>
+          </div>
+
+          {record.wodText && (
+            <div className="cal-wod-text">
+              <div className="cal-section-label">WOD</div>
+              <p>{record.wodText}</p>
+            </div>
+          )}
+
+          <div className="cal-muscles">
+            <div className="cal-section-label">자극 근육</div>
+            <div className="cal-muscle-groups">
+              {['high', 'medium', 'low'].map(intensity => {
+                const group = (record.muscles || []).filter(m => m.intensity === intensity);
+                if (!group.length) return null;
+                return (
+                  <div key={intensity} className={`cal-muscle-group ${intensity}`}>
+                    <span className="cal-intensity-label">{INTENSITY_LABEL[intensity]}</span>
+                    {group.map(m => (
+                      <span key={m.muscleIds?.[0] || m.name} className="cal-muscle-tag">{m.name}</span>
+                    ))}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {record.summary && (
+            <div className="cal-summary">
+              <div className="cal-section-label">총평</div>
+              <p>{renderBold(record.summary)}</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {Object.keys(records).length === 0 && (
+        <p className="cal-empty-msg">아직 저장된 기록이 없습니다. 운동 분석 후 기록을 저장해보세요.</p>
+      )}
+    </div>
+  );
+}

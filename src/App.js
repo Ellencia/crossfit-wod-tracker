@@ -4,6 +4,8 @@ import { EXERCISES, CATEGORIES, PATTERNS, combineExercises } from './exerciseDB'
 import { getRecoveryAdvice } from './recoveryDB';
 import { getMuscleFromPoints, MUSCLE_KO } from './muscleTooltip';
 import { callLocalOnce, aggregate } from './analyzeUtils';
+import { useWodStorage, toDateKey } from './useWodStorage';
+import Calendar from './Calendar';
 import './App.css';
 
 const SAMPLE_WODS = [
@@ -42,6 +44,11 @@ function App() {
   const [result, setResult] = useState(null);
   const [tooltip, setTooltip] = useState(null); // { x, y, name }
   const [recoveryTab, setRecoveryTab] = useState('stretch');
+
+  // 앱 뷰 & 달력 저장
+  const [appView, setAppView] = useState('analyze');
+  const { records, saveRecord, deleteRecord } = useWodStorage();
+  const [savedKey, setSavedKey] = useState(null); // 방금 저장한 날짜 키
 
   // ── AI 분석 ──────────────────────────────────────────────
   const analyzeAI = async () => {
@@ -125,6 +132,16 @@ function App() {
     );
   };
 
+  // ── WOD 저장 ─────────────────────────────────────────────
+  const saveToday = () => {
+    const key = toDateKey();
+    const wodText = mode === 'db'
+      ? EXERCISES.filter(e => selectedIds.includes(e.id)).map(e => e.nameKo).join(', ')
+      : wod;
+    saveRecord(key, { wodText, muscles: result.muscles, summary: result.summary, mode });
+    setSavedKey(key);
+  };
+
   // ── 시각화 데이터 ─────────────────────────────────────────
   const getHighlightData = () => {
     if (!result) return [];
@@ -148,7 +165,31 @@ function App() {
         <p>오늘의 WOD를 입력하면 자극받는 근육 부위를 시각화해드립니다</p>
       </header>
 
-      <main className="app-main">
+      {/* ── 상단 탭 ── */}
+      <div className="app-nav">
+        <button
+          className={`app-nav-btn ${appView === 'analyze' ? 'active' : ''}`}
+          onClick={() => setAppView('analyze')}
+        >
+          운동 분석
+        </button>
+        <button
+          className={`app-nav-btn ${appView === 'calendar' ? 'active' : ''}`}
+          onClick={() => setAppView('calendar')}
+        >
+          기록 달력
+          {Object.keys(records).length > 0 && (
+            <span className="nav-record-count">{Object.keys(records).length}</span>
+          )}
+        </button>
+      </div>
+
+      {/* ── 달력 뷰 ── */}
+      {appView === 'calendar' && (
+        <Calendar records={records} onDelete={deleteRecord} />
+      )}
+
+      <main className="app-main" style={{ display: appView === 'calendar' ? 'none' : undefined }}>
         <section className="input-section">
           {/* 모드 토글 */}
           <div className="mode-toggle">
@@ -447,6 +488,19 @@ function App() {
               );
             })()}
           </section>
+        )}
+
+        {/* ── 저장 버튼 ── */}
+        {result && (
+          <div className="save-bar">
+            {savedKey === toDateKey() ? (
+              <span className="save-done">✓ {savedKey} 기록 저장 완료</span>
+            ) : (
+              <button className="save-btn" onClick={saveToday}>
+                📅 오늘({toDateKey()}) 기록 저장
+              </button>
+            )}
+          </div>
         )}
       </main>
       {tooltip && (
