@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { MUSCLE_KO } from './muscleTooltip';
 import './Calendar.css';
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
@@ -10,7 +11,14 @@ const INTENSITY_COLOR = { high: '#ef4444', medium: '#f97316', low: '#22c55e' };
 function renderBold(text, muscles) {
   if (!text) return null;
   const intensityMap = {};
-  (muscles || []).forEach(m => { if (m.name) intensityMap[m.name] = m.intensity; });
+  (muscles || []).forEach(m => {
+    const name = (m.name || '').replace(/\*\*/g, '').trim();
+    if (name) intensityMap[name] = m.intensity;
+    (m.muscleIds || []).forEach(id => {
+      const canonical = MUSCLE_KO[id];
+      if (canonical) intensityMap[canonical] = m.intensity;
+    });
+  });
   return text.split(/(\*\*[^*]+\*\*)/g).map((part, i) => {
     if (!part.startsWith('**') || !part.endsWith('**')) return part;
     const inner = part.slice(2, -2);
@@ -117,7 +125,7 @@ export default function Calendar({ records, onDelete }) {
                   <div key={intensity} className={`cal-muscle-group ${intensity}`}>
                     <span className="cal-intensity-label">{INTENSITY_LABEL[intensity]}</span>
                     {group.map(m => (
-                      <span key={m.muscleIds?.[0] || m.name} className="cal-muscle-tag">{m.name}</span>
+                      <span key={m.muscleIds?.[0] || m.name} className="cal-muscle-tag">{(m.name || '').replace(/\*\*/g, '')}</span>
                     ))}
                   </div>
                 );

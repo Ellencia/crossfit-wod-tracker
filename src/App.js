@@ -166,7 +166,16 @@ function App() {
   const renderBold = (text, muscles) => {
     if (!text) return null;
     const intensityMap = {};
-    (muscles || []).forEach(m => { if (m.name) intensityMap[m.name] = m.intensity; });
+    (muscles || []).forEach(m => {
+      // AI가 name 필드에 ** 를 붙이는 경우 제거
+      const name = (m.name || '').replace(/\*\*/g, '').trim();
+      if (name) intensityMap[name] = m.intensity;
+      // muscleId 기준 정규 한국어명도 추가 (AI가 총평에서 다른 이름 쓸 때 대비)
+      (m.muscleIds || []).forEach(id => {
+        const canonical = MUSCLE_KO[id];
+        if (canonical) intensityMap[canonical] = m.intensity;
+      });
+    });
     return text.split(/(\*\*[^*]+\*\*)/g).map((part, i) => {
       if (!part.startsWith('**') || !part.endsWith('**')) return part;
       const inner = part.slice(2, -2);
@@ -492,7 +501,7 @@ function App() {
                     <h4>{labels[intensity]}</h4>
                     <div className="muscle-tags">
                       {muscles.map(m => (
-                        <span key={m.name} className="muscle-tag">{m.name}</span>
+                        <span key={m.name} className="muscle-tag">{(m.name || '').replace(/\*\*/g, '')}</span>
                       ))}
                     </div>
                   </div>
