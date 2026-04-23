@@ -176,13 +176,13 @@ function App() {
   const saveToday = () => {
     const matchedIds = mode === 'db' ? selectedIds : (result?.exerciseIds || []);
     const wodText = mode === 'db'
-      ? EXERCISES.filter(e => matchedIds.includes(e.id)).map(e => e.nameKo).join(', ')
+      ? matchedIds.map(id => EXERCISES.find(e => e.id === id)).filter(Boolean).map(e => e.nameKo).join(', ')
       : wod;
     const completionTime = (compMin || compSec)
       ? `${(compMin || '0').padStart(2,'0')}:${(compSec || '0').padStart(2,'0')}`
       : '';
     const exerciseNames = matchedIds.length > 0
-      ? Object.fromEntries(EXERCISES.filter(e => matchedIds.includes(e.id)).map(e => [e.id, e.nameKo]))
+      ? Object.fromEntries(matchedIds.map(id => EXERCISES.find(e => e.id === id)).filter(Boolean).map(e => [e.id, e.nameKo]))
       : {};
     const cleanWeights = matchedIds.length > 0
       ? Object.fromEntries(
@@ -573,7 +573,7 @@ function App() {
               if (!exIds.length) return null;
               return (
               <div className="save-set-tables">
-                {EXERCISES.filter(e => exIds.includes(e.id)).map(ex => {
+                {exIds.map(id => EXERCISES.find(e => e.id === id)).filter(Boolean).map(ex => {
                   const sets = weights[ex.id] || [];
                   return (
                     <div key={ex.id} className="set-table">

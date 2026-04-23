@@ -132,8 +132,8 @@ body {
 
 /* 세트 테이블 */
 .save-set-tables {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
 
