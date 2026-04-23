@@ -2,7 +2,7 @@ const Groq = require('groq-sdk');
 
 const client = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-const MUSCLE_IDS = [
+const VALID_MUSCLE_IDS = new Set([
   'trapezius', 'upper-back', 'lower-back',
   'chest', 'biceps', 'triceps',
   'forearm', 'back-deltoids', 'front-deltoids',
@@ -10,7 +10,7 @@ const MUSCLE_IDS = [
   'adductor', 'hamstring', 'quadriceps',
   'abductors', 'calves', 'gluteal',
   'head', 'tibialis',
-];
+]);
 
 const SYSTEM_PROMPT = `You are a CrossFit coach and sports physiologist. Analyze the WOD and respond ONLY in JSON format.
 
@@ -31,9 +31,77 @@ JSON format:
   "recovery": "한국어 회복 권장사항 1-2문장"
 }
 
-Allowed muscleIds: ${MUSCLE_IDS.join(', ')}
+Allowed muscleIds: ${[...VALID_MUSCLE_IDS].join(', ')}
 
 intensity values: "high" (주동근, 고중량 주도근), "medium" (보조근, 협력근), "low" (안정화근, 코어 지지)`;
+
+const INTENSITY_SCORE = { high: 3, medium: 2, low: 1 };
+const RUNS = 5;
+
+async function callOnce(wod) {
+  const completion = await client.chat.completions.create({
+    model: 'llama-3.3-70b-versatile',
+    messages: [
+      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'user', content: `WOD: ${wod}` },
+    ],
+    temperature: 0.7, // 다양성을 위해 temperature 높임
+    max_tokens: 1024,
+  });
+
+  let text = completion.choices[0].message.content.trim();
+  text = text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+  const objMatch = text.match(/\{[\s\S]*\}/);
+  if (!objMatch) throw new Error('No JSON found');
+  return JSON.parse(objMatch[0]);
+}
+
+function aggregate(results) {
+  // muscleId별 강도 투표 집계
+  const votes = {}; // { muscleId: { high:n, medium:n, low:n, total:n, names:[] } }
+
+  results.forEach(result => {
+    (result.muscles || []).forEach(m => {
+      const intensity = (m.intensity || '').toLowerCase();
+      if (!INTENSITY_SCORE[intensity]) return;
+      (m.muscleIds || []).forEach(id => {
+        if (!VALID_MUSCLE_IDS.has(id)) return;
+        if (!votes[id]) votes[id] = { high: 0, medium: 0, low: 0, total: 0, names: [] };
+        votes[id][intensity]++;
+        votes[id].total++;
+        if (m.name) votes[id].names.push(m.name);
+      });
+    });
+  });
+
+  const muscles = Object.entries(votes)
+    .filter(([, v]) => v.total >= 2) // 1/5는 제외
+    .map(([id, v]) => {
+      // 가중 평균으로 강도 결정
+      const score = (v.high * 3 + v.medium * 2 + v.low * 1) / v.total;
+      let intensity = score >= 2.5 ? 'high' : score >= 1.5 ? 'medium' : 'low';
+
+      // 2/5는 최대 low로 제한
+      if (v.total === 2) intensity = 'low';
+
+      // 가장 많이 쓰인 한국어 이름 선택
+      const nameCounts = {};
+      v.names.forEach(n => { nameCounts[n] = (nameCounts[n] || 0) + 1; });
+      const name = Object.entries(nameCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || id;
+
+      return { name, muscleIds: [id], intensity, confidence: v.total };
+    })
+    .sort((a, b) => INTENSITY_SCORE[b.intensity] - INTENSITY_SCORE[a.intensity]);
+
+  // summary/recovery는 첫 번째 성공 응답에서 가져옴
+  const first = results[0];
+  return {
+    muscles,
+    summary: first?.summary || '',
+    recovery: first?.recovery || '',
+    meta: { runs: results.length, aggregated: true },
+  };
+}
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -47,27 +115,26 @@ module.exports = async function handler(req, res) {
   if (!wod) return res.status(400).json({ error: 'WOD is required' });
 
   try {
-    const completion = await client.chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: `WOD: ${wod}` },
-      ],
-      temperature: 0.3,
-      max_tokens: 4096,
-    });
+    // 5번 병렬 호출
+    const settled = await Promise.allSettled(
+      Array.from({ length: RUNS }, () => callOnce(wod))
+    );
 
-    let text = completion.choices[0].message.content.trim();
-    text = text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
-    console.log('RAW:', text.slice(0, 300));
-    const objMatch = text.match(/\{[\s\S]*\}/);
-    if (objMatch) text = objMatch[0];
+    const results = settled
+      .filter(r => r.status === 'fulfilled')
+      .map(r => r.value);
 
-    const data = JSON.parse(text);
-    console.log('summary:', data.summary);
+    console.log(`성공: ${results.length}/${RUNS}`);
+    if (!results.length) throw new Error('모든 요청 실패');
+
+    const data = aggregate(results);
+    console.log(`집계 근육 수: ${data.muscles.length}, confidence 분포:`,
+      data.muscles.map(m => `${m.name}(${m.confidence}/${RUNS})`).join(', ')
+    );
+
     res.status(200).json(data);
   } catch (err) {
-    console.error('API Error:', err.message, err.status, err.code);
+    console.error('API Error:', err.message);
     res.status(500).json({ error: err.message });
   }
 };

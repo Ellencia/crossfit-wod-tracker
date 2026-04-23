@@ -206,7 +206,7 @@ function App() {
                 onClick={analyzeAI}
                 disabled={loading || !wod.trim()}
               >
-                {loading ? '분석 중...' : '근육 분석하기'}
+                {loading ? 'AI 분석 중... (5회 집계)' : '근육 분석하기'}
               </button>
             </div>
           )}
