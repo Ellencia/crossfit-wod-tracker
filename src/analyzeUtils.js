@@ -1,4 +1,7 @@
 import { EXERCISES } from './exerciseDB';
+import { MUSCLE_KO } from './muscleTooltip';
+
+const sanitizeName = s => (s || '').replace(/\*\*/g, '').replace(/[^가-힣\w\s\-()·]/g, '').trim();
 
 export const VALID_MUSCLE_IDS = new Set([
   'trapezius', 'upper-back', 'lower-back',
@@ -20,8 +23,10 @@ CRITICAL RULES:
 3. "name" fields MUST be Korean muscle names (e.g. 대퇴사두근, 햄스트링, 삼두근, 복근)
 4. muscleIds must ONLY use values from the allowed list
 5. Be THOROUGH — list every muscle group involved, including stabilizers. Aim for 6-10 muscle entries.
-6. Each entry should cover ONE muscle group only
-7. Identify which exercises in the WOD match our exercise DB and return their IDs in "exerciseIds". Only use IDs from the exercise list below.
+6. Each entry MUST cover exactly ONE distinct muscle group with EXACTLY ONE muscleId. Never put multiple muscleIds per entry.
+7. NEVER use vague terms like 코어, 하체, 상체, 등근육 as muscleIds — use specific IDs from the allowed list only.
+8. Each muscleId must appear AT MOST ONCE across all entries. Do not duplicate muscleIds.
+9. Identify which exercises in the WOD match our exercise DB and return their IDs in "exerciseIds". Only use IDs from the exercise list below.
 
 JSON format:
 {
@@ -52,15 +57,17 @@ export function aggregate(results) {
   const votes = {};
 
   results.forEach(result => {
+    const seenInRun = new Set();
     (result.muscles || []).forEach(m => {
       const intensity = (m.intensity || '').toLowerCase();
       if (!INTENSITY_SCORE[intensity]) return;
       (m.muscleIds || []).forEach(id => {
         if (!VALID_MUSCLE_IDS.has(id)) return;
-        if (!votes[id]) votes[id] = { high: 0, medium: 0, low: 0, total: 0, names: [] };
+        if (seenInRun.has(id)) return;
+        seenInRun.add(id);
+        if (!votes[id]) votes[id] = { high: 0, medium: 0, low: 0, total: 0 };
         votes[id][intensity]++;
         votes[id].total++;
-        if (m.name) votes[id].names.push(m.name);
       });
     });
   });
@@ -71,11 +78,7 @@ export function aggregate(results) {
       const score = (v.high * 3 + v.medium * 2 + v.low * 1) / v.total;
       let intensity = score >= 2.5 ? 'high' : score >= 1.5 ? 'medium' : 'low';
       if (v.total === 2) intensity = 'low';
-
-      const nameCounts = {};
-      v.names.forEach(n => { nameCounts[n] = (nameCounts[n] || 0) + 1; });
-      const name = Object.entries(nameCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || id;
-
+      const name = MUSCLE_KO[id] || id;
       return { name, muscleIds: [id], intensity, confidence: v.total };
     })
     .sort((a, b) => INTENSITY_SCORE[b.intensity] - INTENSITY_SCORE[a.intensity]);

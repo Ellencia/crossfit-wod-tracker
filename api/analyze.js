@@ -12,6 +12,19 @@ const VALID_MUSCLE_IDS = new Set([
   'head', 'tibialis', 'neck',
 ]);
 
+// muscleId → 정규 한국어명 (AI 이름 대신 이걸 사용해서 중복 방지)
+const MUSCLE_KO = {
+  trapezius: '승모근', 'upper-back': '광배근', 'lower-back': '척추기립근',
+  chest: '대흉근', biceps: '이두근', triceps: '삼두근', forearm: '전완근',
+  deltoids: '삼각근', abs: '복근', obliques: '복사근',
+  adductors: '내전근', hamstring: '햄스트링', quadriceps: '대퇴사두근',
+  abductors: '외전근', calves: '종아리', gluteal: '둔근',
+  head: '머리', tibialis: '전경골근', neck: '목',
+};
+
+// 한글/영문/공백/기본 특수문자 외 이상한 유니코드 제거
+const sanitizeName = s => (s || '').replace(/\*\*/g, '').replace(/[^가-힣\w\s\-()·]/g, '').trim();
+
 const EXERCISE_LIST = [
   'clean:Clean', 'power_clean:Power Clean', 'hang_clean:Hang Clean',
   'hang_power_clean:Hang Power Clean', 'clean_pull:Clean Pull',
@@ -54,8 +67,10 @@ CRITICAL RULES:
 3. "name" fields MUST be Korean muscle names (e.g. 대퇴사두근, 햄스트링, 삼두근, 복근)
 4. muscleIds must ONLY use values from the allowed list
 5. Be THOROUGH — list every muscle group involved, including stabilizers. Aim for 6-10 muscle entries.
-6. Each entry should cover ONE muscle group only
-7. Identify which exercises in the WOD match our exercise DB and return their IDs in "exerciseIds". Only use IDs from the exercise list below.
+6. Each entry MUST cover exactly ONE distinct muscle group with EXACTLY ONE muscleId. Never put multiple muscleIds per entry.
+7. NEVER use vague terms like 코어, 하체, 상체, 등근육 as muscleIds — use specific IDs from the allowed list only.
+8. Each muscleId must appear AT MOST ONCE across all entries. Do not duplicate muscleIds.
+9. Identify which exercises in the WOD match our exercise DB and return their IDs in "exerciseIds". Only use IDs from the exercise list below.
 
 JSON format:
 {
@@ -102,38 +117,32 @@ async function callOnce(wod) {
 }
 
 function aggregate(results) {
-  // muscleId별 강도 투표 집계
-  const votes = {}; // { muscleId: { high:n, medium:n, low:n, total:n, names:[] } }
+  const votes = {};
 
   results.forEach(result => {
+    const seenInRun = new Set(); // 한 번의 AI 응답 내 중복 muscleId 방지
     (result.muscles || []).forEach(m => {
       const intensity = (m.intensity || '').toLowerCase();
       if (!INTENSITY_SCORE[intensity]) return;
       (m.muscleIds || []).forEach(id => {
         if (!VALID_MUSCLE_IDS.has(id)) return;
-        if (!votes[id]) votes[id] = { high: 0, medium: 0, low: 0, total: 0, names: [] };
+        if (seenInRun.has(id)) return;
+        seenInRun.add(id);
+        if (!votes[id]) votes[id] = { high: 0, medium: 0, low: 0, total: 0 };
         votes[id][intensity]++;
         votes[id].total++;
-        if (m.name) votes[id].names.push(m.name);
       });
     });
   });
 
   const muscles = Object.entries(votes)
-    .filter(([, v]) => v.total >= 2) // 1/5는 제외
+    .filter(([, v]) => v.total >= 2)
     .map(([id, v]) => {
-      // 가중 평균으로 강도 결정
       const score = (v.high * 3 + v.medium * 2 + v.low * 1) / v.total;
       let intensity = score >= 2.5 ? 'high' : score >= 1.5 ? 'medium' : 'low';
-
-      // 2/5는 최대 low로 제한
       if (v.total === 2) intensity = 'low';
-
-      // 가장 많이 쓰인 한국어 이름 선택
-      const nameCounts = {};
-      v.names.forEach(n => { nameCounts[n] = (nameCounts[n] || 0) + 1; });
-      const name = Object.entries(nameCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || id;
-
+      // AI 이름 대신 정규 한국어명 사용 — 다른 근육이 같은 이름을 갖는 문제 방지
+      const name = MUSCLE_KO[id] || id;
       return { name, muscleIds: [id], intensity, confidence: v.total };
     })
     .sort((a, b) => INTENSITY_SCORE[b.intensity] - INTENSITY_SCORE[a.intensity]);
