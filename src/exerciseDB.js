@@ -103,7 +103,7 @@ export const EXERCISES = [
     muscles: { gluteal:'high', adductor:'high', hamstring:'high', quadriceps:'medium', 'lower-back':'medium', 'upper-back':'medium' },
   },
   {
-    id: 'push_press', name: 'Push Press', nameKo: '푸시 프레스', category: '바벨',
+    id: 'push_press', name: 'Push Press', nameKo: '푸시 프레스', category: '올림픽 리프팅',
     muscles: { 'front-deltoids':'high', triceps:'high', quadriceps:'medium', gluteal:'medium', trapezius:'medium', abs:'low' },
   },
   {
