@@ -92,7 +92,8 @@ export async function callLocalOnce(wod, baseUrl = 'http://localhost:1234') {
     body: JSON.stringify({
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: `WOD: ${wod}` },
+        // /no_thinking → Qwen3 계열 모델의 thinking 모드 비활성화
+        { role: 'user', content: `WOD: ${wod}\n/no_thinking` },
       ],
       temperature: 0.7,
       max_tokens: 2048,
@@ -100,7 +101,9 @@ export async function callLocalOnce(wod, baseUrl = 'http://localhost:1234') {
   });
   if (!res.ok) throw new Error(`Local AI error: ${res.status}`);
   const data = await res.json();
-  let text = data.choices[0].message.content.trim();
+  const msg = data.choices[0].message;
+  // content가 비어있으면 reasoning_content에서 JSON 추출 시도
+  let text = (msg.content?.trim() || msg.reasoning_content?.trim() || '');
   text = text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
   const objMatch = text.match(/\{[\s\S]*\}/);
   if (!objMatch) throw new Error('No JSON found');
