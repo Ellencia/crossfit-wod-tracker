@@ -1,0 +1,144 @@
+.fatigue-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.fatigue-empty {
+  color: #444;
+  font-size: 0.88rem;
+  text-align: center;
+  padding: 40px 0;
+}
+
+/* ── 바디맵 ── */
+.fatigue-body-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 8px;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.fatigue-body-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.fatigue-body-label {
+  color: #555;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.fatigue-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 12px;
+  align-self: center;
+}
+
+.fatigue-legend-title {
+  color: #777;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin: 0 0 4px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.fatigue-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #aaa;
+  font-size: 0.8rem;
+}
+
+.fatigue-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.fatigue-legend-note {
+  color: #444;
+  font-size: 0.7rem;
+  margin: 8px 0 0;
+}
+
+/* ── 피로도 바 리스트 ── */
+.fatigue-list {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fatigue-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.fatigue-muscle-name {
+  color: #ccc;
+  font-size: 0.82rem;
+  width: 72px;
+  flex-shrink: 0;
+}
+
+.fatigue-bar-wrap {
+  flex: 1;
+  height: 8px;
+  background: #252525;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.fatigue-bar {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+
+.fatigue-level-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  width: 40px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ── 회복 권장 ── */
+.fatigue-recovery {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.fatigue-recovery-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.fatigue-recovery-header h3 {
+  font-size: 0.95rem;
+  color: #e5e5e5;
+  margin: 0;
+}

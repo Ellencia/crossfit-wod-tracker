@@ -582,6 +582,59 @@ body {
   color: #fde68a;
 }
 
+/* ── WOD 피로 주의사항 ── */
+.wod-warning-box {
+  background: #1a1300;
+  border: 1px solid #713f12;
+  border-radius: 10px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wod-warning-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #f97316;
+}
+
+.wod-warning-desc {
+  color: #a16207;
+  font-size: 0.82rem;
+}
+
+.wod-warning-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wod-warning-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.wod-warning-muscle {
+  font-weight: 700;
+  font-size: 0.88rem;
+  min-width: 70px;
+}
+
+.wod-warning-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.wod-warning-text {
+  color: #aaa;
+  font-size: 0.82rem;
+}
+
 .local-url-row {
   display: flex;
   align-items: center;

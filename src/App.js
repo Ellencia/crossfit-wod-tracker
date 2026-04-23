@@ -6,6 +6,8 @@ import { MUSCLE_KO } from './muscleTooltip';
 import { callLocalOnce, aggregate } from './analyzeUtils';
 import { useWodStorage, toDateKey } from './useWodStorage';
 import Calendar from './Calendar';
+import FatigueView from './FatigueView';
+import { calcFatigue, getWodWarnings } from './fatigueUtils';
 import './App.css';
 
 const SAMPLE_WODS = [
@@ -255,6 +257,12 @@ function App() {
             <span className="nav-record-count">{Object.keys(records).length}</span>
           )}
         </button>
+        <button
+          className={`app-nav-btn ${appView === 'fatigue' ? 'active' : ''}`}
+          onClick={() => setAppView('fatigue')}
+        >
+          피로 분석
+        </button>
       </div>
 
       {/* ── 달력 뷰 ── */}
@@ -262,7 +270,12 @@ function App() {
         <Calendar records={records} onDelete={deleteRecord} />
       )}
 
-      <main className="app-main" style={{ display: appView === 'calendar' ? 'none' : undefined }}>
+      {/* ── 피로 분석 뷰 ── */}
+      {appView === 'fatigue' && (
+        <FatigueView records={records} />
+      )}
+
+      <main className="app-main" style={{ display: appView !== 'analyze' ? 'none' : undefined }}>
         <section className="input-section">
           {/* 모드 토글 */}
           <div className="mode-toggle">
@@ -515,6 +528,36 @@ function App() {
                 <p>{renderBold(result.summary, result.muscles)}</p>
               </div>
             )}
+
+            {/* ── 피로 주의사항 ── */}
+            {result.muscles?.length > 0 && Object.keys(records).length > 0 && (() => {
+              const fatigueScores = calcFatigue(records);
+              const warnings = getWodWarnings(fatigueScores, result.muscles);
+              if (!warnings.length) return null;
+              return (
+                <div className="wod-warning-box">
+                  <div className="wod-warning-title">⚠️ 피로 누적 주의</div>
+                  <p className="wod-warning-desc">최근 운동 기록 기준, 아래 근육들의 피로가 누적된 상태입니다.</p>
+                  <div className="wod-warning-list">
+                    {warnings.map((w, i) => (
+                      <div key={i} className="wod-warning-item">
+                        <span className="wod-warning-muscle" style={{ color: w.level.color }}>
+                          {w.name}
+                        </span>
+                        <span className="wod-warning-badge" style={{ background: w.level.color + '22', color: w.level.color }}>
+                          {w.level.label}
+                        </span>
+                        <span className="wod-warning-text">
+                          {w.score >= 5.5
+                            ? '과부하 위험 — 오늘 이 부위 고강도 훈련은 삼가세요'
+                            : '피로 누적 — 볼륨 감량 또는 스케일링을 고려하세요'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
 
             {result.muscles?.length > 0 && (() => {
               const advice = getRecoveryAdvice(result.muscles);
