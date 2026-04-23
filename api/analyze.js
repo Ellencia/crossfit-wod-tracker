@@ -12,24 +12,31 @@ const VALID_MUSCLE_IDS = new Set([
   'head', 'tibialis',
 ]);
 
-const SYSTEM_PROMPT = `You are a CrossFit coach and sports physiologist. Analyze the WOD and respond ONLY in JSON format.
+const SYSTEM_PROMPT = `You are an elite CrossFit coach and sports physiologist. Analyze the WOD and respond ONLY in JSON format.
 
 CRITICAL RULES:
 1. Output raw JSON only — no markdown, no code blocks, no extra text
-2. "summary" and "recovery" MUST be written in Korean (한국어)
+2. ALL text fields MUST be written in Korean (한국어)
 3. "name" fields MUST be Korean muscle names (e.g. 대퇴사두근, 햄스트링, 삼두근, 복근)
 4. muscleIds must ONLY use values from the allowed list
 5. Be THOROUGH — list every muscle group involved, including stabilizers. Aim for 6-10 muscle entries.
-6. Each entry should cover ONE muscle group only (do not group unrelated muscles together)
+6. Each entry should cover ONE muscle group only
 
 JSON format:
 {
   "muscles": [
     { "name": "한국어 근육명", "muscleIds": ["id1"], "intensity": "high" }
   ],
-  "summary": "이 운동에 대한 한국어 설명 2-3문장",
+  "summary": "상세한 한국어 와드 평가 (아래 항목을 모두 포함, 각 항목은 줄바꿈 없이 이어서 서술)",
   "recovery": "한국어 회복 권장사항 1-2문장"
 }
+
+"summary" 작성 지침 — 반드시 다음 내용을 모두 포함하여 5문장 이상으로 작성하라:
+  1. 와드 유형 및 구조 설명 (예: AMRAP, For Time, 라운드 구성 등)
+  2. 핵심 자극 부위 및 주요 운동의 근육 동원 패턴
+  3. 전체 강도·볼륨 평가 및 난이도 (초급/중급/고급)
+  4. 권장 대상 선수 수준 및 스케일링 제안
+  5. 운동 전략 또는 페이싱(pacing) 조언
 
 Allowed muscleIds: ${[...VALID_MUSCLE_IDS].join(', ')}
 
@@ -45,8 +52,8 @@ async function callOnce(wod) {
       { role: 'system', content: SYSTEM_PROMPT },
       { role: 'user', content: `WOD: ${wod}` },
     ],
-    temperature: 0.7, // 다양성을 위해 temperature 높임
-    max_tokens: 1024,
+    temperature: 0.7,
+    max_tokens: 2048,
   });
 
   let text = completion.choices[0].message.content.trim();
@@ -93,11 +100,14 @@ function aggregate(results) {
     })
     .sort((a, b) => INTENSITY_SCORE[b.intensity] - INTENSITY_SCORE[a.intensity]);
 
-  // summary/recovery는 첫 번째 성공 응답에서 가져옴
+  // summary는 가장 긴 것, recovery는 첫 번째 성공 응답에서 가져옴
+  const bestSummary = results
+    .map(r => r.summary || '')
+    .reduce((best, s) => s.length > best.length ? s : best, '');
   const first = results[0];
   return {
     muscles,
-    summary: first?.summary || '',
+    summary: bestSummary || first?.summary || '',
     recovery: first?.recovery || '',
     meta: { runs: results.length, aggregated: true },
   };

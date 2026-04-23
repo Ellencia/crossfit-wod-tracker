@@ -402,7 +402,8 @@ body {
 
 .summary-box p {
   color: #aaa;
-  line-height: 1.7;
+  line-height: 1.9;
+  word-break: keep-all;
 }
 
 .recovery-box {
