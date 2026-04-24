@@ -193,7 +193,13 @@ module.exports = async function handler(req, res) {
       .map(r => r.value);
 
     console.log(`성공: ${results.length}/${RUNS}`);
-    if (!results.length) throw new Error('모든 요청 실패');
+    if (!results.length) {
+      const reasons = settled.map((r, i) =>
+        r.status === 'rejected' ? `[${i}] ${r.reason?.message || r.reason}` : null
+      ).filter(Boolean);
+      console.error('Groq 실패 원인:', reasons.join(' | '));
+      throw new Error(`모든 요청 실패: ${reasons[0] || 'unknown'}`);
+    }
 
     const data = aggregate(results);
     console.log(`집계 근육 수: ${data.muscles.length}, confidence 분포:`,
