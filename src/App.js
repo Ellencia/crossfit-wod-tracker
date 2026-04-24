@@ -447,8 +447,7 @@ function App() {
             <div className="ai-mode">
               {window.location.protocol === 'https:' && (
                 <div className="local-https-warning">
-                  ⚠️ HTTPS 환경에서는 브라우저 보안 정책으로 로컬 AI 접근이 차단됩니다.
-                  로컬에서 앱을 직접 실행한 뒤 <strong>http://localhost:3000</strong>으로 접속하여 사용하세요.
+                  LM Studio 등 로컬 AI 서버를 먼저 실행하고, 서버 설정에서 <strong>CORS를 허용</strong>한 뒤 연결하세요.
                 </div>
               )}
               <div className="local-url-row">
