@@ -12,7 +12,43 @@ export const VALID_MUSCLE_IDS = new Set([
   'head', 'tibialis', 'neck',
 ]);
 
-const EXERCISE_LIST = EXERCISES.map(e => `${e.id}:${e.name}`).join(', ');
+const EXERCISE_ALIASES = {
+  clean: 'Clean',
+  power_clean: 'Power Clean/PC',
+  hang_clean: 'Hang Clean/HC',
+  hang_power_clean: 'Hang Power Clean/HPC',
+  power_snatch: 'Power Snatch/PS',
+  hang_snatch: 'Hang Snatch/HS',
+  clean_and_jerk: 'Clean & Jerk/C&J',
+  push_jerk: 'Push Jerk/PJ',
+  split_jerk: 'Split Jerk/SJ',
+  overhead_squat: 'Overhead Squat/OHS',
+  push_press: 'Push Press/PP',
+  back_squat: 'Back Squat/BS',
+  front_squat: 'Front Squat/FS',
+  deadlift: 'Deadlift/DL',
+  romanian_deadlift: 'Romanian Deadlift/RDL',
+  sumo_deadlift: 'Sumo Deadlift/SDL',
+  strict_press: 'Strict Press/Shoulder Press/SP',
+  bench_press: 'Bench Press/BP',
+  barbell_row: 'Barbell Row/BB Row',
+  pendlay_row: 'Pendlay Row/P-row/P row',
+  ctb_pullup: 'Chest-to-Bar Pull-up/CTB',
+  bar_muscle_up: 'Bar Muscle-up/BMU',
+  ring_muscle_up: 'Ring Muscle-up/RMU',
+  toes_to_bar: 'Toes-to-Bar/T2B',
+  knees_to_elbow: 'Knees-to-Elbow/K2E',
+  double_under: 'Double Under/DU',
+  rowing: 'Rowing/Row/Erg',
+  assault_bike: 'Assault Bike/Echo Bike',
+  kb_swing: 'Kettlebell Swing/KB Swing',
+  turkish_getup: 'Turkish Get-up/TGU',
+  db_snatch: 'Dumbbell Snatch/DB Snatch',
+};
+
+const EXERCISE_LIST = EXERCISES.map(e =>
+  `${e.id}:${EXERCISE_ALIASES[e.id] || e.name}`
+).join(', ');
 
 export const SYSTEM_PROMPT = `You are an elite CrossFit coach and sports physiologist. Analyze the WOD and respond ONLY in JSON format.
 
@@ -26,6 +62,7 @@ CRITICAL RULES:
 7. NEVER use vague terms like 코어, 하체, 상체, 등근육 as muscleIds — use specific IDs from the allowed list only.
 8. Each muscleId must appear AT MOST ONCE across all entries. Do not duplicate muscleIds.
 9. Identify which exercises in the WOD match our exercise DB and return their IDs in "exerciseIds". Only use IDs from the exercise list below.
+10. Abbreviation lookup (always resolve these): BP=bench_press, P-row/P row=pendlay_row, BS=back_squat, FS=front_squat, OHS=overhead_squat, DL=deadlift, PC=power_clean, HPC=hang_power_clean, HC=hang_clean, PS=power_snatch, C&J=clean_and_jerk, PP=push_press, PJ=push_jerk, SJ=split_jerk, SP=strict_press, CTB=ctb_pullup, BMU=bar_muscle_up, RMU=ring_muscle_up, T2B=toes_to_bar, K2E=knees_to_elbow, DU=double_under, TGU=turkish_getup, RDL=romanian_deadlift.
 
 JSON format:
 {

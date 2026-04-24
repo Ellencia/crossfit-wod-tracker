@@ -27,18 +27,18 @@ const sanitizeName = s => (s || '').replace(/\*\*/g, '').replace(/[^가-힣\w\s\
 
 const EXERCISE_LIST = [
   'clean:Clean', 'power_clean:Power Clean', 'hang_clean:Hang Clean',
-  'hang_power_clean:Hang Power Clean', 'clean_pull:Clean Pull',
-  'snatch:Snatch', 'power_snatch:Power Snatch', 'hang_snatch:Hang Snatch',
-  'snatch_pull:Snatch Pull', 'clean_and_jerk:Clean & Jerk',
-  'push_jerk:Push Jerk', 'split_jerk:Split Jerk',
-  'overhead_squat:Overhead Squat', 'push_press:Push Press',
-  'back_squat:Back Squat', 'front_squat:Front Squat',
-  'thruster:Thruster', 'deadlift:Deadlift',
-  'romanian_deadlift:Romanian Deadlift', 'sumo_deadlift:Sumo Deadlift',
-  'strict_press:Strict Press/Shoulder Press', 'bench_press:Bench Press',
-  'barbell_row:Barbell Row', 'pendlay_row:Pendlay Row', 'good_morning:Good Morning',
-  'pullup:Pull-up', 'ctb_pullup:Chest-to-Bar Pull-up',
-  'bar_muscle_up:Bar Muscle-up', 'ring_muscle_up:Ring Muscle-up',
+  'hang_power_clean:Hang Power Clean/HPC', 'clean_pull:Clean Pull',
+  'snatch:Snatch', 'power_snatch:Power Snatch/PS', 'hang_snatch:Hang Snatch/HS',
+  'snatch_pull:Snatch Pull', 'clean_and_jerk:Clean & Jerk/C&J',
+  'push_jerk:Push Jerk/PJ', 'split_jerk:Split Jerk/SJ',
+  'overhead_squat:Overhead Squat/OHS', 'push_press:Push Press/PP',
+  'back_squat:Back Squat/BS', 'front_squat:Front Squat/FS',
+  'thruster:Thruster', 'deadlift:Deadlift/DL',
+  'romanian_deadlift:Romanian Deadlift/RDL', 'sumo_deadlift:Sumo Deadlift/SDL',
+  'strict_press:Strict Press/Shoulder Press/SP', 'bench_press:Bench Press/BP',
+  'barbell_row:Barbell Row/BB Row', 'pendlay_row:Pendlay Row/P-row/P row', 'good_morning:Good Morning',
+  'pullup:Pull-up', 'ctb_pullup:Chest-to-Bar Pull-up/CTB',
+  'bar_muscle_up:Bar Muscle-up/BMU', 'ring_muscle_up:Ring Muscle-up/RMU',
   'ring_dip:Ring Dip', 'dip:Dip',
   'hspu:Handstand Push-up/HSPU', 'handstand_walk:Handstand Walk',
   'toes_to_bar:Toes-to-Bar/T2B', 'knees_to_elbow:Knees-to-Elbow/K2E',
@@ -71,6 +71,7 @@ CRITICAL RULES:
 7. NEVER use vague terms like 코어, 하체, 상체, 등근육 as muscleIds — use specific IDs from the allowed list only.
 8. Each muscleId must appear AT MOST ONCE across all entries. Do not duplicate muscleIds.
 9. Identify which exercises in the WOD match our exercise DB and return their IDs in "exerciseIds". Only use IDs from the exercise list below.
+10. Abbreviation lookup (always resolve these): BP=bench_press, P-row/P row=pendlay_row, BS=back_squat, FS=front_squat, OHS=overhead_squat, DL=deadlift, PC=power_clean, HPC=hang_power_clean, HC=hang_clean, PS=power_snatch, C&J=clean_and_jerk, PP=push_press, PJ=push_jerk, SJ=split_jerk, SP=strict_press, CTB=ctb_pullup, BMU=bar_muscle_up, RMU=ring_muscle_up, T2B=toes_to_bar, K2E=knees_to_elbow, DU=double_under, TGU=turkish_getup, RDL=romanian_deadlift.
 
 JSON format:
 {
