@@ -56,7 +56,8 @@ function App() {
 
   // 앱 뷰 & 달력 저장
   const [appView, setAppView] = useState('analyze');
-  const { records, saveRecord, deleteRecord } = useWodStorage();
+  const { records, saveRecord, deleteRecord, exportData, importData } = useWodStorage();
+  const [importMsg, setImportMsg] = useState(null);
   const [savedKey, setSavedKey] = useState(null);
   const [saveDate, setSaveDate] = useState(toDateKey());
 
@@ -267,7 +268,35 @@ function App() {
 
       {/* ── 달력 뷰 ── */}
       {appView === 'calendar' && (
-        <Calendar records={records} onDelete={deleteRecord} />
+        <>
+          <div className="data-io-bar">
+            <button className="data-io-btn" onClick={exportData}>
+              내보내기
+            </button>
+            <label className="data-io-btn">
+              들여오기
+              <input
+                type="file"
+                accept=".json"
+                style={{ display: 'none' }}
+                onChange={async (e) => {
+                  const file = e.target.files[0];
+                  if (!file) return;
+                  e.target.value = '';
+                  try {
+                    const count = await importData(file);
+                    setImportMsg(`${count}개 기록을 가져왔습니다.`);
+                  } catch (err) {
+                    setImportMsg(`오류: ${err.message}`);
+                  }
+                  setTimeout(() => setImportMsg(null), 3000);
+                }}
+              />
+            </label>
+            {importMsg && <span className="data-io-msg">{importMsg}</span>}
+          </div>
+          <Calendar records={records} onDelete={deleteRecord} />
+        </>
       )}
 
       {/* ── 피로 분석 뷰 ── */}

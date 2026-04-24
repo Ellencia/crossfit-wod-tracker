@@ -35,5 +35,37 @@ export function useWodStorage() {
     });
   }, []);
 
-  return { records, saveRecord, deleteRecord };
+  const exportData = useCallback(() => {
+    const json = JSON.stringify(records, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `wod-records-${toDateKey()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [records]);
+
+  const importData = useCallback((file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (typeof imported !== 'object' || Array.isArray(imported)) {
+            throw new Error('올바른 형식이 아닙니다.');
+          }
+          const merged = { ...records, ...imported };
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+          setRecords(merged);
+          resolve(Object.keys(imported).length);
+        } catch (err) {
+          reject(err);
+        }
+      };
+      reader.readAsText(file);
+    });
+  }, [records]);
+
+  return { records, saveRecord, deleteRecord, exportData, importData };
 }
